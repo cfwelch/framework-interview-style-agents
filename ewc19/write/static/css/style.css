@@ -1,0 +1,1002 @@
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Open Sans', sans-serif;
+	/* font-size: 80%; */
+	/*background:
+	linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,
+	linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px,
+	linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px,
+	linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,
+	linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
+	linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);*/
+	background-color: #FFFFFF;
+}
+
+.circle-container {
+	display: block;
+	float: right;
+	position: relative;
+	/* top: 15.5%; */
+	/* left: 14.5%; */
+	background: #fff;
+	width: 1em;
+	height: 1em;
+	border-radius: 50%;
+	border-style: solid;
+	border-width: 2px;
+	border-color: black;
+	margin: 0em;
+}
+.radiusone {
+	position: absolute;
+	width: 80%;
+	height: 2px;
+	left: 10%;
+	top: 50%;
+	background: black;
+	/* transform-origin: left center; */
+	transform: rotate(-45deg);
+}
+.radiustwo {
+	transform: rotate(45deg);
+}
+.circle-container:hover {
+	-webkit-filter: drop-shadow(2px 2px 20px rgb(189, 90, 10));
+	filter: drop-shadow(2px 2px 20px rgb(189, 90, 10));
+}
+
+/* =================================
+			Dark Theme
+   =================================*/
+
+body.dark {
+	margin: 0;
+	padding: 0;
+	background: #1D1D1D;
+	font-size: 80%;
+	background-color: #1D1D1D;
+	color: #1c94c4;
+}
+
+body.dark #content,body.dark #page {
+	background-color: #1D1D1D;
+}
+
+body.dark td,body.dark th,body.dark a {
+	text-decoration: none;
+	color: #1c94c4;
+}
+
+body.dark input[type="text"], body.dark textarea, body.dark select, body.dark input[type="submit"] {
+	background-color: #1D1D1D;
+	border: 1px solid #1c94c4;
+	color: #1c94c4;
+	border-radius: 4px;
+}
+
+body.dark input[type="submit"] {
+	padding: 5px;
+}
+
+body.dark input[type="submit"]:hover {
+	background-color: rgba(28, 148, 196, 0.64);
+	cursor: pointer;
+	transition: 0.5s;
+}
+
+body.dark .sideheader {
+	font-size: 20px;
+	color: #1c94c4;
+	padding: 8px 32px 8px 32px;
+}
+
+body.dark .sideheader a {
+	color: #1c94c4;
+}
+
+body.dark .sidenav a {
+	padding: 8px 8px 8px 32px;
+	text-decoration: none;
+	font-size: 16px;
+	color: rgba(34, 139, 180, 0.66);
+	display: block;
+	transition: 0.3s
+}
+
+body.dark .sidenav a:hover {
+	color: #1c94c4;
+}
+
+body.dark .goal_header {
+	padding: 10px;
+	border: thin solid #1c94c4;
+	background-color: #222222;
+	border-radius: 4px;
+}
+
+body.dark .popup {
+	background-color: #1D1D1D;
+	box-shadow: 2px 3px 8px #363636;
+}
+
+body.dark .ui-state-default a {
+	color: #1c94c4;
+}
+
+body.dark .liststyle {
+	background-color: #222222;
+}
+
+body.dark .ontop {
+	background: rgba(126, 126, 126, 0.5);
+}
+
+body.dark select {
+	background-color: #1D1D1D;
+	border: thin solid #1c94c4;
+	color: #1c94c4;
+}
+
+body.dark a:hover, a:active {
+	text-decoration: none;
+	/* text-decoration-color: #1c94c4; */
+	text-shadow: 0 0 10px #2bc3ff;
+	/* transition: all 1s ease-in-out infinite alternate; */
+	transition: 0.3s;
+}
+
+/* Customize horizontal rules */
+body.dark hr{
+	border-top: 4px double #1c94c4;
+	text-align: center;
+	border: 0; 
+	height: 2px; 
+	background-image: -webkit-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+	background-image: -moz-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+	background-image: -ms-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+	background-image: -o-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+}
+body.dark .headinghr{
+	border-top: 4px double #1c94c4;
+	text-align: center;
+	border: 0; 
+	height: 2px; 
+	/* background-image: -webkit-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+	background-image: -moz-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+	background-image: -ms-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D);
+	background-image: -o-linear-gradient(left, #1D1D1D, #1c94c4, #1D1D1D); */
+	background: linear-gradient(90deg, #1D1D1D 0%, #1c94c4 10%, #1D1D1D 100%);
+}
+body.dark hr:after {
+	content: '\002665';
+	position: relative;
+	top: -15px;
+	padding: 0 10px;
+	background: #1D1D1D;
+	color: #1c94c4;
+	font-size: 18px;
+}
+
+body.dark .sideheader hr {
+	border-top: 4px double #1c94c4;
+	text-align: center;
+	border: 0; 
+	height: 2px; 
+	background-image: -webkit-linear-gradient(left, #111, #1c94c4, #111);
+	background-image: -moz-linear-gradient(left, #111, #1c94c4, #111);
+	background-image: -ms-linear-gradient(left, #111, #1c94c4, #111);
+	background-image: -o-linear-gradient(left, #111, #1c94c4, #111); 
+}
+body.dark .liststyle hr {
+	border-top: 4px double #1c94c4;
+	text-align: center;
+	border: 0; 
+	height: 2px; 
+	background-image: -webkit-linear-gradient(left, #222222, #1c94c4, #222222);
+	background-image: -moz-linear-gradient(left, #222222, #1c94c4, #222222);
+	background-image: -ms-linear-gradient(left, #222222, #1c94c4, #222222);
+	background-image: -o-linear-gradient(left, #222222, #1c94c4, #222222); 
+}
+body.dark .sideheader hr:after, body.dark .liststyle hr:after {
+	content: '';
+	padding: 0;
+	color: #1c94c4;
+}
+
+body.dark .check_container input:checked ~ .checkmark {/* When the checkbox is checked, add a blue background */
+	background-color: #2196F3;
+}
+
+body.dark .datestring {
+	color:#1c94c4;
+	font-size:10px;
+	text-align:left;
+}
+
+/* =================================
+			Normal CSS 
+   =================================
+*/
+
+/* Customize select drop-down */
+select {
+	/* styling */
+	background-color: #FFFFFF;
+	border: thin solid #2bc3ff;
+	color: black;
+	border-radius: 4px;
+	display: inline-block;
+	/* reset */
+	margin: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+
+body.basic .goal_header {
+	padding: 10px;
+	border: thin solid black;
+	border-radius: 4px;
+}
+
+h1, h2, h3 {
+	margin: 0;
+	padding: 0;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: normal;
+	/*color: #A800FF;*/
+}
+
+h1 {
+	font-size: 2em;
+}
+
+h2 {
+	font-size: 2.4em;
+}
+
+h3 {
+	font-size: 1.6em;
+}
+
+p, ul, ol {
+	margin-top: 0;
+	line-height: 180%;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+
+.imgbsel {
+	transform: scale(1.2);
+	filter: blur(10px) brightness(-100);
+	-webkit-filter: blur(10px) brightness(-100);
+	opacity: .5;
+	/* box-shadow: 0px 0px 2px inset, 0px 0px 50px; */
+}
+
+.imgbutton:hover {
+	/* width: 200px;
+	height: 200px; */
+	/* background: transparent; */
+	border-radius: 50%;
+	position: relative;
+	box-shadow: 0px 0px 50px inset;
+	transition: 0.3s;
+}
+
+a:hover, a:active {
+	text-decoration: none;
+	/* text-decoration-color: #1c94c4; */
+	text-shadow: 0 0 10px #2bc3ff;
+	/* transition: all 1s ease-in-out infinite alternate; */
+	transition: 0.3s;
+}
+
+img.border {
+	border: 6px solid #DFE7EE;
+}
+
+img.alignleft {
+	float: left;
+	margin-right: 25px;
+}
+
+img.alignright {
+	float: right;
+}
+
+img.aligncenter {
+	margin: 0px auto;
+}
+
+#wrapper {
+	margin: 0 auto;
+	padding: 0;
+}
+
+/* Header */
+
+#header-wrapper {
+	height: 240px;
+}
+
+#header {
+	width: 960px;
+	height: 240px;
+	margin: 0 auto;
+}
+
+/* Search */
+
+#search {
+	float: right;
+	width: 280px;
+	height: 100px;
+	padding: 0;
+}
+
+#search form {
+	height: 41px;
+	margin: 0;
+	padding: 60px 0 0 30px;
+}
+
+#search fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+#search-text {
+	width: 195px;
+	padding: 6px 10px;
+	border: none;
+	background: #FFFFFF;
+	text-transform: lowercase;
+	font: normal 11px Arial, Helvetica, sans-serif;
+	color: #7F7F81;
+}
+
+#search-submit {
+	display: none;
+}
+
+/* Menu */
+
+#menu-wrapper {
+	overflow: hidden;
+	height: 60px;
+	/*box-shadow: 2px 3px 8px #868686;
+	background-color: #858585;
+	background-image: repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(150,150,150,1) 3px, rgba(150,150,150,1) 6px);*/
+}
+
+#menu {
+	width: 1240px;
+	margin: 0px auto;
+}
+
+#menu ul {
+	margin: 0;
+	padding: 0px 0px 0px 0px;
+	list-style: none;
+	line-height: normal;
+	text-align: center;
+}
+
+#thoughtheader {
+	width: 100%;
+	overflow: hidden;
+}
+
+#thoughtheader li {
+	display: inline-block;
+	padding-left: 0px;
+}
+
+#thoughtheader ul {
+	list-style: outside none none;
+	line-height: normal;
+	margin: auto;
+	padding: 0;
+}
+
+#menu li {
+	display: inline-block;
+}
+
+#menu a {
+	display: block;
+	float: left;
+	height: 58px;
+	margin: 0px;
+	padding: 0px 30px 0px 30px;
+	line-height: 60px;
+	text-decoration: none;
+	text-transform: uppercase;
+	font-size: 12px;
+	font-weight: 700;
+	border: none;
+}
+
+#menu .current_page_item a {
+	border-radius: 10px;
+	background-color: #777777;
+}
+
+/*#menu a:hover {
+}*/
+
+/* Page */
+
+#page {
+	margin: 0 auto;
+	padding: 0;
+	background-color: #FFFFFF;
+	margin-left: 300px;
+	border-radius: 25px;
+	transition: margin-left 0.4s ease 0s;
+}
+
+/* Content */
+
+#content {
+	float: none;
+	padding: 0px 0px 0px 0px;
+}
+
+.stats td {
+	text-align: right;
+}
+
+.links {
+	display: block;
+	width: 96px;
+	padding: 2px 0px 2px 0px;
+	background: #3602A5;
+	text-align: center;
+	text-transform: uppercase;
+	font-size: 10px;
+	color: #FFFFFF;
+}
+
+#footer {
+	width: 100%;
+	/*margin-left:300px;*/
+	transition: margin-left 0.4s ease 0s;
+	text-align:center;
+}
+
+/* Custom */
+
+.thought {
+	border:2px solid black;
+	padding: 5px 5px;
+	background-color: #000000;
+	border-radius: 5px;
+	margin: 10px;
+}
+
+/* Color Selector */
+
+#redSlider, #greenSlider, #blueSlider {
+	float: left;
+	clear: left;
+	width: 300px;
+	margin: 4px;
+}
+#redSlider .ui-slider-range { background: #ef2929; }
+#redSlider .ui-slider-handle { border-color: #ef2929; }
+#greenSlider .ui-slider-range { background: #8ae234; }
+#greenSlider .ui-slider-handle { border-color: #8ae234; }
+#blueSlider .ui-slider-range { background: #729fcf; }
+#blueSlider .ui-slider-handle { border-color: #729fcf; }
+
+#postIcons li {
+	text-align: left;
+	line-height: 100%;
+	display: inline;
+	list-style-type: none;
+}
+
+#postIcons {
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+td.zeroWidth {
+    width: 1%;
+}
+
+/* Mouseover boxes */
+.hiddenBox {
+	display: none;
+	border: solid 1px #000;
+	background-color: #ddd;
+	color: black;
+	margin-top: 10px;
+	position: absolute;
+	left: -50px;
+	top: 30px;
+	border-radius: 15px;
+	padding: 15px;
+	white-space:nowrap;
+}
+
+.hiddenBox:before {
+  content: ' ';
+  position: absolute;
+  top: -30px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  border: 15px solid;
+  border-color: transparent transparent #000 transparent;
+}
+
+.hiddenBox:after {
+  content: ' ';
+  position: absolute;
+	top: -29px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  border: 15px solid;
+  border-color: transparent transparent #ddd transparent;
+}
+
+.center-cropped {
+	width: 150px;
+	height: 150px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	border-radius: 15px;
+	border: 4px solid black;
+	background-size: cover;
+}
+
+.small-icon {
+	width: 50px;
+	height: 50px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	border-radius: 15px;
+	border: 3px solid black;
+	background-size: cover;
+}
+
+ /* The side navigation menu */
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    width: 250; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 3;
+    min-width: 270px;
+    max-width: 270px;
+    top: 0;
+    left: 0;
+    background-color: #111; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 60px; /* Place content 60px from the top */
+    box-shadow: 10px 0px 5px #333333;
+	animation: 0.4s ease 0s normal none 1 running animateleft;
+}
+
+.topnav {
+	display:none;
+    width: 100%; /* 100% Full-height */
+    height:45px;
+    /*width: 250; */
+    position: fixed; /* Stay in place */
+    z-index: 3;
+    top: 0;
+    left: 0;
+    background-color: #111; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    box-shadow: 10px 0px 5px #333333;
+	animation: 0.4s ease 0s normal none 1 running animateleft;
+}
+
+/* The navigation menu links */
+.sidenav a, .sidetext {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebutton {
+	padding: 2px 2px 2px 2px;
+    text-decoration: none;
+	font-size: 16px;
+	width: 80px;
+    border: none;
+    display: block;
+	transition: 0.3s;
+	/* cursor: pointer; */
+	border-radius: 8px;
+	background-color: #2bc3ff;
+}
+
+.sidebutton:hover {
+	background-color: #a1e2fc; /* Green */
+	/* color: white; */
+}
+
+.sidenav .subRow a {
+    padding: 8px 8px 8px 48px;
+    text-decoration: none;
+	font-size: 16px;
+    color: #818181;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+}
+
+.sideheader {
+	font-size: 20px;
+	color: white;
+	padding: 8px 32px 8px 32px;
+}
+
+.sideheader a {
+	font-size: 20px;
+	color: white;
+	padding: 0px 0px 0px 0px;
+	display: inline;
+	text-decoration: underline;
+}
+
+.hoverlight {
+    box-shadow: none;
+    transition: box-shadow 0.5s;
+}
+
+.hoverlight:hover {
+	box-shadow: 0 0 6px rgb(35, 173, 255);
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media only screen and (max-width : 1000px) {
+/*@media screen and (max-height: 450px) {*/
+	#page {margin-left:0px;}
+	.sidenav {padding-bottom: 60px;display:none;margin-top:45px;box-shadow: 10px 0px 0px #333333;padding-top: 10px;}
+	.sidehide {display:none;}
+	.topnav {display:block;}
+}
+
+@media only screen and (max-width : 1600px) {
+	#displayad {display:none;}
+}
+
+.triangle-down { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 16px solid #EEEEEE; }
+
+.triangle-right { width: 0; height: 0; border-top: 8px solid transparent; border-left: 16px solid #EEEEEE; border-bottom: 8px solid transparent; }
+
+.helptext {display:none;}
+
+.helptext ul {
+  list-style-type: none;
+}
+
+/* dope menu button */
+.container {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: #FFFFFF;
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
+.change .bar1 {
+    -webkit-transform: rotate(-45deg) translate(-9px, 6px) ;
+    transform: rotate(-45deg) translate(-9px, 6px) ;
+}
+
+.change .bar2 {opacity: 0;}
+
+.change .bar3 {
+    -webkit-transform: rotate(45deg) translate(-8px, -8px) ;
+    transform: rotate(45deg) translate(-8px, -8px) ;
+}
+
+.tabbuttons td {
+	font-weight: bold;
+	border-color: black;
+	padding: 20px 0 20px;
+	border-bottom: 3px solid #BBBBBB;
+	width: 20%;
+	cursor: pointer;
+}
+
+.tabbuttons .tabselected {
+	border-bottom: 3px solid black;
+}
+
+.ontop {
+	z-index: 999;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	display: none;
+	position: absolute;				
+	background: rgba(225, 225, 225, .5);
+}
+
+.popup {
+	color: #000000;
+	background-color: #ffffff;
+	opacity: 1;
+	font-size: 18px;
+	border-radius: 10px;
+	box-shadow: 2px 3px 8px #868686;
+	/* To align popup window at the center of screen*/
+	position:fixed;
+	left: 50%;
+	top: 50%;
+	-ms-transform: translate(-50%,-50%);
+	-moz-transform:translate(-50%,-50%);
+	-webkit-transform: translate(-50%,-50%);
+	transform: translate(-50%,-50%);
+}
+
+div.popup table.ptable {
+	padding: 20px 30px 20px 30px;
+	max-width: 1000px;
+}
+
+div.popup tr,th {
+	padding: 5px;
+}
+
+.poption {
+	text-align:left;
+}
+
+body.basic .datestring {
+	color:gray;
+	font-size:10px;
+	text-align:left;
+}
+
+.noteheader {
+	color:gray;
+	text-align:left;
+}
+
+.fixwidth {
+	max-width:30%;
+	width:30%;
+}
+
+.liststyle {
+	text-align:left;
+	border:1px solid grey;
+	border-radius:5px;
+	display:inline-table;
+	vertical-align:top;
+}
+
+/* CUSTOM CHECKBOXES from: https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
+.check_container {/* Customize the label (the check_container) */
+	display: block;
+	position: relative;
+	margin-bottom: 12px;
+	cursor: pointer;
+	width: 100%;
+	text-align: center;
+	font-size: 22px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.check_container input {/* Hide the browser's default checkbox */
+	position: absolute;
+	left: calc(50% - 9px);
+	margin: 0;
+	opacity: 0;
+}
+.checkmark {/* Create a custom checkbox */
+	position: absolute;
+	top: 0;
+	left: calc(50% - 9px);
+	height: 18px;
+	width: 18px;
+	text-align: center;
+	background-color: #EEEEEE;
+	border-radius: 4px;
+}
+.check_container:hover input ~ .checkmark {/* On mouse-over, add a grey background color */
+	background-color: #ccc;
+}
+body.basic .check_container input:checked ~ .checkmark {/* When the checkbox is checked, add a blue background */
+	background-color: #2bc3ff;
+}
+.checkmark:after {/* Create the checkmark/indicator (hidden when not checked) */
+	content: "";
+	position: absolute;
+	display: none;
+}
+.check_container input:checked ~ .checkmark:after {/* Show the checkmark when checked */
+	display: block;
+}
+.check_container .checkmark:after {/* Style the checkmark/indicator */
+	left: 5px;
+	top: 1px;
+	width: 5px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+/* Customize horizontal rules */
+hr{
+	border-top: 4px double #2bc3ff;
+	text-align: center;
+	border: 0; 
+	height: 2px; 
+	background-image: -webkit-linear-gradient(left, #FFFFFF, #2bc3ff, #FFFFFF);
+	background-image: -moz-linear-gradient(left, #FFFFFF, #2bc3ff, #FFFFFF);
+	background-image: -ms-linear-gradient(left, #FFFFFF, #2bc3ff, #FFFFFF);
+	background-image: -o-linear-gradient(left, #FFFFFF, #2bc3ff, #FFFFFF); 
+}
+body.basic .headinghr{
+	border-top: 4px double #2bc3ff;
+	text-align: center;
+	border: 0; 
+	height: 2px;
+	background: linear-gradient(90deg, #FFFFFF 0%, #2bc3ff 10%, #FFFFFF 100%);
+}
+.sideheader hr {
+	background-image: -webkit-linear-gradient(left, #111, #2bc3ff, #111);
+	background-image: -moz-linear-gradient(left, #111, #2bc3ff, #111);
+	background-image: -ms-linear-gradient(left, #111, #2bc3ff, #111);
+	background-image: -o-linear-gradient(left, #111, #2bc3ff, #111); 
+}
+
+/* Customize inputs */
+body.basic input[type="text"], body.basic input[type="password"], body.basic textarea, body.basic select, body.basic input[type="submit"] {
+	background-color: #FFFFFF;
+	border: 1px solid #2bc3ff;
+	color: #000000;
+	border-radius: 4px;
+}
+
+body.basic input[type="submit"] {
+	padding: 5px;
+}
+
+body.basic input[type="submit"]:hover {
+	background-color: #2bc3ff;
+	cursor: pointer;
+	transition: 0.5s;
+}
+
+/* speech bubbles from https://leaverou.github.io/bubbly/ */
+
+.your-bubble {
+	position: relative;
+	background: #c1c1c1;
+	text-align: left;
+	padding: 0.5em;
+	float: right;
+	clear: both;
+	right: 10px;
+	/* display: table; */
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	max-width: 98%;
+	border-radius: .4em;
+}
+
+.your-bubble:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 0.312em solid transparent;
+	border-left-color: #c1c1c1;
+	border-right: 0;
+	margin-top: -0.312em;
+	margin-right: -0.312em;
+}
+
+.comp-bubble {
+	position: relative;
+	background: #95d3ff;
+	text-align: left;
+	float: left;
+	clear: both;
+	left: 10px;
+	/* display: table; */
+	padding: 0.5em;
+	border-radius: .4em;
+}
+
+.comp-ind {
+	position: relative;
+	height: 3em;
+	width: 3em;
+	top: 0;
+	left: 0%;
+	background-color: #95d3ff;
+	border-radius: 50%;
+	border: 5px solid #6b9cbf;
+	display: inline-block;
+}
+
+.your-ind {
+	position: relative;
+	height: 3em;
+	width: 3em;
+	top: 0;
+	left: 0%;
+	background-color: #bbb;
+	border-radius: 50%;
+	border: 5px solid #777;
+	display: inline-block;
+}
+
+.comp-bubble:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 0.312em solid transparent;
+	border-right-color: #95d3ff;
+	border-left: 0;
+	margin-top: -0.312em;
+	margin-left: -0.312em;
+}
+
+.rand-button {
+	/* width: 20%; */
+}
+.rand-button:hover {
+	/* color: #1c94c4; */
+	/* background-color: rgba(28, 148, 196, 0.64); */
+	/* transition: 0.5s; */
+	border-radius: 25%;
+	cursor: pointer;
+	position: relative;
+	box-shadow: 0px 0px 5px 5px #1c94c4;
+	transition: 0.3s;
+}
+
+#summaries td {
+	padding-left: 1em;
+	padding-right: 1em;
+}

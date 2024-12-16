@@ -1,0 +1,67 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<style>
+  textarea {
+    resize: none;
+    outline: none;
+    overflow: auto;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+  }
+</style>
+<script>
+function subifdone() {
+  $('#feedback').submit();
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div style="padding: 40px 20px 20px 20px;">
+  <div style="text-align:center;width:100%;">
+    <h2>Session Feedback</h2>
+    <br/><br/>
+    <form action="/interview/write/feedback/" name="feedback" id="feedback" method="post">
+      {% csrf_token %}
+      <table style="margin: 0 auto;max-width: 100%;">
+        <tr>
+          <td>What did you like/dislike about the interview?</td>
+        </tr>
+        <tr>
+          <td><textarea name="clarity" id="clarity" style="text-align: left;width: 100%;" rows="5"></textarea></td>
+        </tr>
+        <tr>
+          <td>What would you like to see more/less in terms of final analysis and feedback?</td>
+        </tr>
+        <tr>
+          <td><textarea name="summary" id="summary" style="text-align: left;width: 100%;" rows="5"></textarea></td>
+        </tr>
+        <tr>
+          <td>What new features would you suggest for the next version?</td>
+        </tr>
+        <tr>
+          <td><textarea name="features" id="features" style="text-align: left;width: 100%;" rows="5"></textarea></td>
+        </tr>
+        <tr>
+          <td>Is there any other feedback on the interface and the interaction you had that you would like to share?</td>
+        </tr>
+        <tr>
+          <td><textarea name="other" id="other" style="text-align: left;width: 100%;" rows="5"></textarea></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <input type="button" class="sidebutton" style="display:inline-block;" onclick="subifdone();" value="Submit"/>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+
+{% endblock %}

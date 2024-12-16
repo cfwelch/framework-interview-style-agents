@@ -1,0 +1,53 @@
+
+from django.urls import re_path as url
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    # path('', views.index, name='index'),
+    url('login', views.login, name='management_login'),
+    # url('home', views.home, name='management_home'),
+    url('survey$', views.survey_start, name='management_survey'),
+    url('survey_delete', views.survey_delete, name='management_survey_delete'),
+    url('survey_add', views.survey_add, name='management_survey_add'),
+    url('toggle_survey_question', views.toggle_survey_question, name='toggle_survey_question'),
+    url('summary/run_lda', views.runLda, name='management_run_lda'),
+    url('summary/run_bertopic', views.runBertopic, name='management_run_bertopic'),
+    url('summary/lda_results/extract_interactions', views.extractIntractions, name='management_extract_interactions'),
+    url('summary/lda_results', views.ldaResults, name='management_lda_results'),
+    url('summary/bertopic_results', views.bertopicResults, name='management_bertopic_results'),
+    url('summary/check_lda_status', views.checkLdaStatus, name='management_lda_status'),
+    url('summary/check_bertopic_status', views.checkBertopicStatus, name='management_bertopic_status'),
+    url('summary/lda', views.lda, name='management_lda'),
+    url('summary/bertopic', views.bertopic, name='management_bertopic'),
+    url('summary/time', views.time_chart, name='management_time'),
+    url('summary/emotions', views.emotions_chart, name='management_emotions'),
+    url('summary/word_count', views.word_count_chart, name='management_word_count'),
+    url('summary/extract_conversations', views.extract_conversations, name='management_extract_conversatiosn'),
+    url('summary', views.management_summary, name='management_summary'),
+    url('delete_conversation', views.deleteConversation, name='delete_conversation'),
+    # url('faq_startpage', views.FAQStartPage, name='management_faq_startpage'),
+    url('faq_index', views.indexFAQ, name='management_faq_index'),
+    url('delete_faq', views.deleteFAQ, name='management_delete_faq'),
+    url('add_faq', views.addFAQ, name='management_add_faq'),
+    url('generate_pdf_interview', views.generate_pdf_interview, name='generate_pdf_interview'),
+    # url('interview_startpage', views.interviewStartPage, name='management_interview_startpage'),
+    url('interview_details', views.interviewDetails, name='management_interview_details'),
+    url('get_add_new_interview', views.addNewInterviewGET, name='management_add_new_interview_post'),
+    url('post_add_new_interview', views.addNewInterview, name='management_add_new_interview_get'),
+    url('update_interview', views.updateInterview, name='management_update_interview'),
+    url('deactivate_interview', views.deactivate_interview, name='deactivate_interview'),
+    url('interview', views.interviews, name='management_interview'),
+    url('lexicons', views.lexicons_start_page, name='management_lexicons'),
+    url('lexicon_assignment', views.lexicon_assignment, name='lexicon_assignment'),
+    url('lexicon_assign', views.lexicon_assign, name='lexicon_assign'),
+    url('add_lexicon', views.add_lexicon, name='management_add_lexicons'),
+    url('delete_lexicon', views.delete_lexicon, name='management_delete_lexicons'),
+    url('set_topic', views.set_topic, name='set_topic'),
+    url('topics', views.topics, name='management_topics'),
+    url('add_topic', views.add_topic, name='management_add_topic'),
+    url('new_topic', views.new_topic, name='management_new_topic'),
+
+    # url('migrate', views.migrate, name='management_migrate'),
+]

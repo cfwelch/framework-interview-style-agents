@@ -1,0 +1,77 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<script>
+  function lexicon_assignment(id, action) {
+    var select_val = $("#cat_modify" + id).val();
+    if (select_val == '') {
+      return;
+    }
+    $("#new_cat").val(select_val);
+    $("#new_top").val(id);
+    $("#action").val(action)
+    $("#topic_assign").submit();
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-4 page-header">
+      <h1 class="mb-12">Lexicon Topic Assignment</h1>
+    </div>
+
+    <form action="/interview/admin/management/lexicon_assign" name="topic_assign" id="topic_assign" method="post">
+      {% csrf_token %}
+      <input type="hidden" id="new_cat" name="new_cat" value=""/>
+      <input type="hidden" id="new_top" name="new_top" value=""/>
+      <input type="hidden" id="action" name="action" value=""/>
+      <div class="container mt-5">
+        <table class="table-striped" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Icon</th>
+                    <th>Name</th>
+                    <th>Lexicons</th>
+                    <th>Modify</th>
+                    <th></th>
+                </tr>
+            </thead>
+            {% for topic in topics %}
+            <tr>
+                <td>{{ topic.id }}</td>
+                <td style="display: table-cell;justify-content: center;vertical-align: middle;">
+                    {% if topic.file %}
+                    <div class="small-icon" style="background-image: url('../../static/uploads/{{ topic.file }}');"></div>
+                    {% endif %}
+                </td>
+                <td>{{ topic.name }}</td>
+                <td width="50%;">
+                  {{ topic.categories|join:", " }}
+                </td>
+                <td>
+                  <select id="cat_modify{{ topic.id }}">
+                    <option></option>
+                    {% for cat in categories %}
+                    <option>{{cat}}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <input type="button" class="btn btn-blue" value="Add" onclick="lexicon_assignment('{{ topic.id }}', 'add')" />
+                  <input type="button" class="btn btn-blue" value="Remove" onclick="lexicon_assignment('{{ topic.id }}', 'remove')" />
+                </td>
+            </tr>
+            {% endfor %}
+          </table>
+      </div>
+    </form>
+
+</div>
+
+
+{% endblock %}

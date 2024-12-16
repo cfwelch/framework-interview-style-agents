@@ -1,0 +1,425 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<!-- <script src="{% static 'jquery.autogrow-textarea.js'%}"></script> -->
+<script src="{% static 'chart.bundle.min.js'%}"></script>
+<script>
+  var chartnum = 0;
+  var lkt = (new Date()).getTime();
+  var writing = false;
+  var curtimer;
+  var type_func;
+  var i = 1;
+  var text_response;
+  var text_index;
+  var forward = true;
+  var not_still = true;
+  var wait_time = 0;
+  var row_div = 1;
+  var fade_time = 500;
+  var typo_pos = -1; // Assumption that bot will not make a second typo before correcting the first
+  let seconds = 0, minutes = 0, hours = 0;
+  let timer;
+  let resp = false;
+  let thinking2 = false;
+
+  $(function() {
+    $("#send").click(function (e) {
+      if (not_still) {
+          var msg = $("#message").val();
+          if (msg.trim() != "") {
+            nlkt = (new Date()).getTime();
+            send_message(i);
+            i = 0;
+            $("#stopWatch").html('0m 0s');
+            lkt -= 3000;
+            // clearInterval(curtimer);
+            return true;
+          }
+        }
+    });
+
+    // Message send and auto-resize JS
+    // $('#message').css('overflow', 'hidden').autogrow()
+    $("#message").keyup(function (e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        // alert(code);
+        // if (code == 13) {
+        // } else {
+          lkt = (new Date()).getTime();
+          if (!writing) {
+            writing = true;
+            curtimer = setInterval(function () {
+              var q = Math.floor(i/60);
+              var r = i % 60;
+              $("#stopWatch").html(q + 'm ' + r + 's');
+              i++;
+              nlkt = (new Date()).getTime();
+              if (nlkt - lkt > 3000) {
+                writing = false;
+                clearInterval(curtimer);
+              }
+            }, 1000);
+          }
+        // }
+    });
+    // Timer JS
+    var sifunc;
+    $("#startButton").click(function (e) {
+      var sbt = $("#startButton").html();
+      if (sbt == "Start") {
+        sifunc = setInterval(function () {
+          var q = Math.floor(i/60);
+          var r = i % 60;
+          $("#stopWatch").html(q + 'm ' + r + 's');
+          i++;
+        }, 1000);
+        $("#startButton").html("Stop");
+      } else {
+        clearInterval(sifunc);
+        $("#startButton").html("Start");
+      }
+    });
+      
+    $("#resetButton").click(function (e) {
+      i = 0;
+      $("#stopWatch").html('0m 0s');
+    });
+  });
+
+  function send_message(millis) {
+    var csrftoken = getCookie('csrftoken');
+    var msg = $("#message").val();
+    var tpc = $("#topic").val();
+    var post_ivalue = $("#postid").val();
+    msg = msg.trim().replace('\n', '<br/>');
+    $("#past").append("<tr id='rdiv" + row_div + "'><td></td><td><div class='your-bubble' style='text-align: left; margin:5px 0;display: inline-block;overflow-wrap: break-word;word-break: break-word;'>" + msg + "</div></td><td><div class='your-ind'><p style='padding: 0.5em 0;'>Me</p></div></td></tr>");
+    $("#rdiv" + row_div).hide().fadeIn(fade_time);
+    row_div += 1;
+    $("#message").val("");
+    
+    if(resp['pid'] !== 'end_question') $("#past").append("<tr><td><div class='comp-ind'><p style='padding: 0.5em 0;'>{{agent_name}}</p></div></td><td><div class='comp-bubble' id='current' style='margin:5px 0;'>.</div></td><td></td></tr>")
+    $("#current").hide().fadeIn(fade_time*2);
+    if(resp['pid'] !== 'end_question') {
+      thinking2 = setInterval(function() {
+        wait_time += 1000;
+        var dotstr = "";
+        for (var ii = 0; ii < wait_time/1000; ii += 1) {
+          dotstr += ".";
+          if (dotstr == ".....") {
+            dotstr = ".";
+          }
+        }
+        document.getElementById('current').innerHTML = dotstr;
+      }, 1000);
+    }
+    var rq = $.ajax({
+      url: "/interview/write/ajax/send",
+      type: "POST",
+      data: { message: msg, pid: post_ivalue, time: millis, topic: tpc, csrfmiddlewaretoken: csrftoken },
+      dataType: "json"
+    });
+    rq.done(function(return_value) {
+      resp = return_value;
+      // console.log(thinking2)
+      if(thinking2) {
+        clearInterval(thinking2);
+        thinking2 = false;
+      }
+      // Average English word has 4.7 characters so (4.7+1 space) * 80wpm =456/60 = 7.6 chars/second = ~132 ms/char
+      // alert(return_value);
+      // var parts = return_value.split(':::');
+      text_response = return_value['response'];
+      forward = true;
+      not_still = false;
+      text_index = 0;
+      var pid = return_value['pid'];
+      wait_time = 0;
+
+      if (return_value['notes'].length > 0) {
+        for (var i = 0; i < return_value['notes'].length; i += 1) {
+          $("#past>tbody").append("<tr style='max-width: 100%;' class='float-margin'><td style='text-align: right;vertical-align: top;max-width: 10%;'></td><td style='text-align: left;vertical-align: top;max-width: 90%;color: gray;'>" + return_value['notes'][i] + "</div></td><td></td></tr>");
+          // $("#past").append("<div style='vertical-align: top;color: gray;position: relative;text-align: center;float: center;clear: both;display: table;'>" + return_value['notes'][i] + "</div>");
+        }
+      }
+
+      if (text_response.length != 0) {
+            // Scroll to new message box
+            var offset = $("#current").offset();
+            $('html, body').animate({
+              scrollTop: offset.top,
+              scrollLeft: offset.left
+            });
+
+            $("#current").html(text_response[text_index]);
+            text_index += 1;
+            var made_typo = false;
+            type_func = setInterval(function () {
+            if (forward) {
+              var typo_prob = 0;
+              var next_char = text_response[text_index];
+              
+              if (next_char == "\n") {
+                next_char = "<br/>";
+              }
+              $("#current").append(next_char);
+              text_index += 1;
+            } else {
+              var ttt = $("#current").html();
+              $("#current").html(ttt.substring(0, ttt.length-1));
+              text_index -= 1;
+              if (text_index == typo_pos || text_index == 0) {
+                typo_pos = -1;
+                forward = true;
+              }
+            }
+
+            if (typo_pos > -1 && forward && (Math.random() < 0.1 || text_index - typo_pos > 10)) {
+              forward = false;
+            }
+            else if (text_response.length == text_index) {
+              if (typo_pos > -1) {
+                forward = false;
+              } else {
+                clearInterval(type_func);
+                $("#current").removeAttr("id");
+                not_still = true;
+              }
+            };
+          }, 20);
+
+        var has_chart = false;
+        $("#postid").val(pid);
+
+        if (has_chart) {
+          var ctx = document.getElementById('chart' + String(chartnum)).getContext('2d');
+          var myChart = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: ['Anger', 'Anxiety', 'Sadness'],
+                  datasets: [{
+                      label: '# of Words',
+                      data: [parseInt(parts[2]), parseInt(parts[3]), parseInt(parts[4])],
+                      backgroundColor: [
+                          'rgba(255, 99, 132, 0.2)',
+                          'rgba(54, 162, 235, 0.2)',
+                          'rgba(255, 206, 86, 0.2)'
+                      ],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)'
+                      ],
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      yAxes: [{
+                          ticks: {
+                              beginAtZero: true
+                          }
+                      }]
+                  }
+              }
+          });
+          chartnum += 1;
+        }
+      }
+
+      // If the conversation has ended then make the 'continue' button appear
+      if (return_value['end']) {
+        $('#send_message').hide();
+        $('#instructions').hide();
+        $('#end_interview').show();
+        clearInterval(timer);
+        localStorage.removeItem('seconds');
+        localStorage.removeItem('minutes');
+        localStorage.removeItem('hours');
+      }
+
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    document.getElementById('message').addEventListener("keyup", function (e) {
+      if (event.shiftKey && event.key === 'Enter') {
+        this.value = this.value + "\r\n"
+        return;
+      } else if(e.keyCode === 13) {
+        document.getElementById('send').click()
+      }
+    });
+
+    function checkReloaded() {
+      if (localStorage.getItem('seconds')) {
+        seconds = localStorage.getItem('seconds')
+      }
+
+      if (localStorage.getItem('minutes')) {
+        minutes = localStorage.getItem('minutes')
+      }
+
+      if (localStorage.getItem('hours')) {
+        hours = localStorage.getItem('hours')
+      }
+    }
+
+    function startStopwatch() {
+      checkReloaded();
+      timer = setInterval(() => {
+        seconds++;
+        if (seconds === 60) {
+          seconds = 0;
+          minutes++;
+        }
+        if (minutes === 60) {
+          minutes = 0;
+          hours++;
+        }
+        displayStopwatch();
+
+        localStorage.setItem('seconds', seconds);
+        localStorage.setItem('minutes', minutes);
+        localStorage.setItem('hours', hours);
+      }, 1000);
+    }
+
+    function displayStopwatch() {
+      document.getElementById("overallStopWatch").innerHTML = (hours > 0 ? (hours + "h " ) : "") + (minutes ? (minutes > 9 ? minutes : "0" + minutes) : "0") + "m " + (seconds > 9 ? seconds + 's' : "0" + seconds + 's');
+    }
+
+    function stopStopwatch() {
+      clearInterval(timer);
+      localStorage.removeItem('seconds');
+      localStorage.removeItem('minutes');
+      localStorage.removeItem('hours');
+    }
+
+    function resetStopwatch() {
+      stopStopwatch();
+      seconds = 0;
+      minutes = 0;
+      hours = 0;
+      displayStopwatch();
+    }
+
+    startStopwatch();
+  })
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="base-padding">
+  <div class="center-full">
+    <h2>Interview</h2>
+    <br/><br/>
+
+    <form action="/interview/write/send/" name="send" method="post">
+      <input type="hidden" id="postid" name="postid" value="{{pid}}"/>
+      <input type="hidden" id="topic" name="topic" value="{{topic}}"/>
+      <input type="hidden" id="chartCount" name="chartCount" value="0"/>
+      {% csrf_token %}
+      <!-- <table style="margin: 0 auto;max-width: 100%;border-spacing:0 15px;" name="past" id="past"> -->
+      <!-- <tr style="margin: 0 auto;max-width: 100%;">
+        <td style="text-align: right;vertical-align: top;max-width: 10%;"><b>{{turn.name}}:</b></td>
+        <td style="text-align: left;max-width: 90%;">{{turn.text|linebreaksbr}}</td>
+      </tr> 
+      <tr style="margin: 0 auto;max-width: 100%;">
+        <td style="text-align: right;vertical-align: top;max-width: 10%;"><b>{{agent_name}}:</b></td>
+        <td style="text-align: left;max-width: 90%;">{{prompt|linebreaksbr}}</td>
+        <td></td>
+      </tr> -->
+      <!-- <div id="past"> -->
+      <table style="margin: 0 auto;" id="past">
+        {% for turn in convo %}
+        <tr>
+          {% if turn.name == 'You' %}
+            <td></td>
+            <td>
+              <div class="your-bubble" style="text-align: left; margin:5px 0;display: inline-block;overflow-wrap: break-word;word-break: break-word;">
+                {{turn.text|linebreaksbr}}
+              </div>
+            </td>
+            <td><div class="your-ind">
+              <p style="padding: 0.5em 0;">Me</p>
+            </div></td>
+          {% else %}
+            <td><div class="comp-ind">
+              <p style="padding: 0.5em 0;">{{agent_name}}</p>
+            </div></td>
+            <td>
+              <div class="comp-bubble" style="margin:5px 0;">
+                {{turn.text}}
+              </div>
+            </td>
+            <td></td>
+          {% endif %}
+        </tr>
+          <!-- <br/> -->
+        {% endfor %}
+        {% if not is_complete %}
+          <td><div class="comp-ind">
+            <p style="padding: 0.5em 0;">{{agent_name}}</p>
+          </div></td>
+          <td>
+            <div class="comp-bubble" style="margin:5px 0;">
+              {{prompt|linebreaksbr}}
+            </div>
+          </td>
+          <td></td>
+        {% endif %}
+      </table>
+      <!-- </div> -->
+
+      {% if not is_complete %}
+        <table style="width: 100%;text-align: center;" class="float-margin">
+          <tr id="send_message" style="display: inline-block;width: 100%;box-sizing: border-box;height: 100%;">
+            <td style="width: 100%;">
+              <textarea name="message" class="textarea-message" id="message" style="text-align: left;width: 100%;" rows="6"></textarea>
+            </td>
+            <td style="padding-left:15px;height: 100%;vertical-align: middle;">
+              <input type="button" id="send" value="Send" class="sidebutton" style="height: 5em;"/>
+            </td>
+          </tr>
+          <tr id="instructions">
+            <td colspan="2" style="color: gray; font-size: 0.8rem">
+              Shift + enter for new line. Enter to send message.
+            </td>
+          </tr>
+        </table>
+      {% endif %}
+    </form>
+    <br/>
+    <form action="/interview/write/write/" name="send" method="get">
+      <table style="width: 100%;" class="float-margin">
+        <tr id="end_interview" style="display: none;">
+          <td colspan="2">
+            <input type="submit" value="Continue" class="sidebutton" style="display: inline-block;" id="theend"/>
+          </td>
+          <td></td>
+        </tr>
+      </table>
+    </form>
+    <br/>
+    {% if is_complete %}
+      <form action="/interview/write/reset/" name="reset" method="post">
+        {% csrf_token %}
+        <table class="center-full">
+          <tr style="width: 100%;">
+            <td class="float-margin" style="max-width: 50%;text-align: center;">
+              <!-- <button id="deleteButton" class="sidebutton,float-margin" style="text-align: center;">Reset</button> -->
+              <input type="submit" value="Reset" class="sidebutton" style="display: inline-block;" id="deleteButton"/>
+            </td>
+          </tr>
+        </table>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+
+{% endblock %}

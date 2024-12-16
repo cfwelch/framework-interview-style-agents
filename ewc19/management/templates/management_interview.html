@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+
+<script>
+function redirect(interviewId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    window.location.href = "interview_details?interviewId=" + interviewId;
+}
+
+function redirectNewInterview(topic) {
+    window.location.href = "get_add_new_interview?topic=" + topic;
+}
+
+function downloadPDF(topic) {
+    axios.get(`generate_pdf_interview?topic=${topic}`)
+    .then(response => {
+        let path = response.data;
+        const link = document.createElement("a");
+        link.href = path;
+        link.download = 'interviews.pdf';
+        link.click();
+    })
+    .catch(error => console.error(error));
+}
+
+function deactivate(topic) {
+    window.location.href = "deactivate_interview?topic=" + topic;
+}
+
+</script>
+
+<div style="padding: 40px 20px 20px 20px">
+  <div
+    style="
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <div style="margin: auto">
+        <h1 style="padding: 0 7rem">Interviews</h1>
+    </div>
+
+    <div class="add-button">
+        <input type="button" class="btn btn-blue" value="Download interviews as PDF" onclick="downloadPDF('{{ request.session.active_topic }}')" />
+        <input type="button" class="btn btn-red" value="Deactivate Topic" onclick="deactivate('{{ request.session.active_topic_id }}')" />
+        <input type="button" class="btn btn-blue" value="Create new interview" onclick="redirectNewInterview('{{ request.session.active_topic }}')" />
+    </div>
+    <div class="interviews-container">
+        {% for interview in interviews %}
+            <div class="interview-card" onClick="redirect('{{interview.id}}')">
+                {% if interview.active%}
+                    <div class="interview-card__status">
+                        <div class="status active"></div>
+                        <p>Active</p>
+                    </div>
+                {% else%}
+                <div class="interview-card__status">
+                    <div class="status inactive"></div>
+                    <p>Inactive</p>
+                </div>
+
+                {% endif %}
+                <div class="interview-card__note">
+                    {% if interview.note %}
+                        <p>{{interview.note}}</p>
+                    {% else %}
+                        <p>No notes..</p>
+                    {% endif %}
+                </div>
+                <div class="interview-card__bottom">
+                    <div class="interview-card__bottom__date">
+                        {% if interview.created_at %}
+                            <p>{{interview.created_at}}</p>
+                        {% else %}
+                            <p>Publishing date is not available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="interview-card__bottom__id">
+                        <p>#{{ interview.id }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    </div>
+</div>
+{% endblock %}

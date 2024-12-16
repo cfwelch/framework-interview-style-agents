@@ -1,0 +1,178 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+  function redirect(menu) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const topic = urlParams.get('topic');
+    window.location.href = menu + "/?topic=" + topic;
+  }
+
+  function checkBertopicStatus() {
+    axios.get(`check_bertopic_status`)
+    .then(response => {
+      if (response.data === 'True') {
+        window.location.href = window.location.href
+      }
+    })
+    .catch(error => console.error(error));
+  }
+
+  function startBertopic(topic) {
+    document.getElementById('error').innerHTML = "";
+    numTopics = document.getElementById("numTopics").value;
+    if (numTopics === "") {
+      numTopics = 'Auto';
+    }
+    if ((numTopics >= 5 && numTopics < 101) || numTopics === 'Auto'){
+      axios.get(`check_bertopic_status`)
+      .then(response => {
+        if (response.data === 'True') {
+          axios.get(`run_bertopic?topic=${topic}&numTopics=${numTopics}`)
+          .then(response => {
+            var options = { year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('ldas').innerHTML = `
+              <tr >
+                <th scope="row">-</th>
+                <td >${new Date().toLocaleDateString("en-US", options)}</td>
+                <td >${numTopics}</td>
+              <td>
+                  <img class="status-img rotating" src="{% static 'progress.png' %}" />
+              </td>
+                <td>-</td>
+                <td>-</td>
+                <td style="backround-color: red;">
+                  <form action="/interview/write/summary" method="post">
+                    {% csrf_token %}
+                    <input name="int_id" type="hidden" value="{{conversation.id}}"/>
+                    <input name="session_id" type="hidden" value="{{conversation.session_id}}"/>
+                    <input disabled class="button" type="submit" value="Go"/>
+                </form>
+                </td>
+              </tr>
+            ` + document.getElementById('ldas').innerHTML
+          })
+          .catch(error => console.error(error));
+          setTimeout(()=> {
+            window.setInterval(checkBertopicStatus, 10000); // if it doesn't start in 10 seconds it will refresh the page and stop checking
+          }, 500)
+        } else {
+          document.getElementById('error').innerHTML = "Another Bertopic is already running...";
+        }})
+      .catch(error => console.error(error));
+      } else {
+        document.getElementById('error').innerHTML = "Invalid number of topics";
+      }
+  };
+
+  document.addEventListener("DOMContentLoaded", function(){
+    document.getElementById('numTopics').addEventListener("keyup", function (e) {
+      if (event.ctrlKey && event.key === 'Enter') {
+        this.value = this.value + "\r\n"
+        return;
+      } else if(e.keyCode === 13) {
+        document.getElementById('runBertopic').click()
+      }
+    });
+  })
+    
+</script>
+<div style="padding: 40px 20px 20px 20px">
+  <div
+    style="
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <div class="management-summary-top">
+      <div class="management-summary-top__header">
+        <div class="management-summary-top__header">
+          {% if icon_image %}
+          <img class="management-summary-top__header__img" src="{% static 'uploads/'|add:icon_image %}" />
+          {% endif %}
+          <h3>{{ request.session.active_topic }}</h3>
+        </div>
+        <div style="margin-left: auto">
+            <h4>Bertopic</h4>
+        </div>
+      </div>
+      <div class="management-lda-top">
+        <p style="margin: 0">Last Bertopic was run on: <span style="font-weight: bold">{{ldas.0.startingDate}}</span></p>
+        <input style="width: 15rem" id="numTopics" class="input" type="number" step="1" min="5" placeholder="Number of topics (blank for auto)"/>
+        <input id="runBertopic" class="button" type="button" value="Run Bertopic" onClick="startBertopic('{{topic}}', 10)"/>
+      </div>
+      <p id="error" class="error"></p>
+      <div class="management-lda-body">
+        <div class="management-lda-body__top">
+            <h4>Last 10 run Bertopic:</h4>
+        </div>
+        <div class="management-lda-body__table">
+            <table style="margin-top: 3rem;" class="lda-table">
+                <thead style="backround-color: red">
+                    <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Number of Topics</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Duration</th>
+                    <th scope="col">Coherence</th>
+                    <th scope="col">Results</th>
+                    </tr>
+                </thead>
+                <tbody id="ldas">
+                  {% for lda in ldas %}
+                    {% if lda.status == 'processing' %}
+                      <script>
+                        window.setInterval(checkBertopicStatus, 500);
+                      </script>
+                    {% endif %}
+                    <tr >
+                      <th scope="row">{{lda.id}}</th>
+                      <td >{{lda.startingDate}}</td>
+                      {% if lda.numTopics == -1 %}
+                        <td >Auto</td>
+                      {% else %}
+                        <td >{{lda.numTopics|floatformat:-1}}</td>
+                      {% endif %}
+                    <td>
+                      {% if lda.status == 'processing'%}
+                        <img class="status-img rotating" src="{% static 'progress.png' %}" />
+                      {% elif lda.status == 'completed'%}
+                        <img class="status-img" src="{% static 'correct.png' %}" />
+                      {% else %}
+                        <img class="status-img" src="{% static 'failed.png' %}" />
+                      {% endif %}
+                    </td>
+                    {% if lda.duration == None %}
+                      <td>-</td>
+                    {% else %}
+                      <td>{{lda.duration}}s</td>
+                    {% endif %}
+                    {% if lda.coherence == None %}
+                        <td>-</td>
+                      {% else %}
+                        <td>{{lda.coherence}}</td>
+                      {% endif %}
+                    <td style="backround-color: red;">
+                      <form action="bertopic_results" method="post">
+                        {% csrf_token %}
+                        <input name="ldaId" type="hidden" value="{{lda.id}}"/>
+                        <input name="session_id" type="hidden" value="{{conversation.session_id}}"/>
+                        {% if lda.status == 'completed' %}
+                          <input class="button" type="submit" value="Go"/>
+                        {% else %}
+                          <input disabled class="button" type="submit" value="Go"/>
+                        {% endif %}
+                    </form>
+                    </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+        </div>
+      </div>
+    {% endblock %}
+  </div>
+</div>
+

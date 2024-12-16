@@ -1,0 +1,118 @@
+{% extends "base.html" %} {% load static %} {% block head %}
+<script src="{% static 'chart.bundle.min.js'%}"></script>
+<script>
+  function subintro(top) {
+    $("#topic").val(top);
+    $("#intro").submit();
+  }
+
+  function gototop(top) {
+    // $("#top_choice").show().fadeOut(1000);
+    $("#top_choice").hide();
+    $("#topic" + top)
+      .hide()
+      .fadeIn(1000);
+    $("#topic").val(top);
+  }
+
+  function gotomain(top) {
+    $("#top_choice").hide().fadeIn(1000);
+    // $("#" + top).show().fadeOut(1000);
+    $("#" + top).hide();
+  }
+</script>
+{% endblock %} {% block content %}
+
+<div style="padding: 40px 20px 20px 20px">
+  <div style="text-align: center; width: 100%">
+    <h2>Interview Topics</h2>
+    <br /><br />
+
+    <table
+      id="top_choice"
+      style="margin: 0 auto;text-align: center;
+      {% if into != '' %}
+      display: none;
+      {% endif %}"
+    >
+      <tr>
+        <td style="padding-bottom: 1em" colspan="2">
+          Choose a topic you would like to write about.
+        </td>
+      </tr>
+      {% for topic in topics %}
+        <tr class="rand-button" style="padding: 10px" onclick="gototop('{{topic.id}}');" >
+          <td>
+            {% if topic.file %}
+              <div class="small-icon" style="background-image: url('../static/uploads/{{ topic.file }}');"></div>
+            {% endif %}
+          </td>
+          <td style="font-size: 1.5em; text-align: left; padding-left: 10px">
+            {{topic.name}}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+
+    <form action="/interview/write/intro/" name="intro" id="intro" method="post">
+      {% csrf_token %}
+      <input type="hidden" id="topic" name="topic" value="" />
+
+      {% for topic in topics %}
+        <table
+          id="topic{{topic.id}}"
+          style="margin: 0 auto;max-width: 100%;width: 90%;
+          {% if into != topic.id %}
+          display: none;
+          {% endif %}"
+        >
+          <!-- <tr style="margin: 0 auto; max-width: 100%">
+            <td colspan="2" style="text-align: center; padding-bottom: 1em">
+              <b>Estimated Time: 15 minutes</b>
+            </td>
+          </tr> -->
+          <tr style="margin: 0 auto; max-width: 100%">
+            <!-- <td style="text-align: right;vertical-align: top;max-width: 10%;"></td> -->
+            <td colspan="2" style="text-align: left; max-width: 90%">
+              {{topic.intro_disclaimer|linebreaksbr}}
+            </td>
+          </tr>
+          <tr>
+            {% if into != '' %}
+            <td style="padding-top: 2em" colspan="2">
+              <input
+                type="button"
+                class="sidebutton"
+                style="display: inline-block"
+                onclick="subintro('{{topic.id}}');"
+                value="Submit"
+              />
+            </td>
+            {% else %}
+            <td style="padding-top: 2em">
+              <input
+                type="button"
+                class="sidebutton"
+                style="display: inline-block"
+                onclick="gotomain('topic{{topic.id}}');"
+                value="Back"
+              />
+            </td>
+            <td style="padding-top: 2em">
+              <input
+                type="button"
+                class="sidebutton"
+                style="display: inline-block"
+                onclick="subintro('{{topic.id}}');"
+                value="Submit"
+              />
+            </td>
+            {% endif %}
+          </tr>
+        </table>
+      {% endfor %}
+    </form>
+  </div>
+</div>
+
+{% endblock %}

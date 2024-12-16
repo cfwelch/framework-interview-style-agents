@@ -1,0 +1,189 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+
+<script>
+  $(document).ready(function(){
+    // initially hide all rows
+    $('.lexicon-row').hide();
+    
+    // show only the rows of the selected type
+    function showRowsOfType(type) {
+      $('.lexicon-row').hide();
+      $('.' + type).show();
+    }
+  
+    // handle changing the dropdown selection
+    $('#lexiconTypeSelector').change(function(){
+      showRowsOfType($(this).val());
+    });
+    
+    // show initial rows
+    var start_type = '{{ start_type }}';
+    if (start_type == 'None') {
+      showRowsOfType($('#lexiconTypeSelector').val());
+    } else {
+      $('#lexiconTypeSelector').val(start_type)
+      showRowsOfType(start_type);
+    }
+  });
+
+  function deleteWordFunction(type, word) {
+    $('#deleteType').val(type);
+    $('#deleteWord').val(word);
+    $('#deleteForm').submit();
+  }
+
+  function addLexiconForm() {
+    var category = $('#lexiconCategory').val();
+    var words = $('#lexiconWords').val();
+    var csrftoken = getCookie('csrftoken');
+
+    $('#closeModal').click();
+    // Ajax request to update lexicons.py
+    $.ajax({
+      url: 'add_lexicon',
+      type: 'POST',
+      data: {
+        'category': category,
+        'lexicon_words': words,
+        'csrfmiddlewaretoken': csrftoken
+      },
+      success: function(response) {
+        if(response.status == 'OK') {
+          showNotification(response.message, 'success');
+        } else if(response.status == 'ERROR') {
+          showNotification(response.message, 'danger');
+        } else {
+          showNotification('Error adding lexicon. Please try again.', 'danger');
+        }
+      },
+      error: function(error) {
+        showNotification('Error adding lexicon. Please try again.', 'danger');
+      }
+    });
+  }
+
+  function showNotification(message, type) {
+    var notification = $('<div class="notification"></div>');
+    notification.addClass('alert-' + type);
+    notification.text(message);
+    $('#page-bgtop').append(notification);
+    setTimeout(function(){
+      notification.fadeOut();
+    }, 3000);
+  }
+
+</script>
+
+<style>
+  .notification {
+      position: fixed;
+      bottom: 20px;
+      text-align: center;
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      /* display: none; */
+  }
+  .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+  }
+  .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-4 page-header">
+      <h1 class="mb-12">Lexicons</h1>
+      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addLexiconModal">
+        Add Lexicon
+      </button>
+      <button type="button" class="btn btn-success" onclick="location.href='/interview/admin/management/lexicon_assignment'">
+        Manage Topics
+      </button>
+    </div>
+
+    <div class="d-flex justify-content-center mb-4">
+        <select id="lexiconTypeSelector" class="custom-select" style="width: 200px;">
+            {% for type in lexicons_data.keys %}
+            <option value="{{ type }}">{{ type }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <form id="deleteForm" action="delete_lexicon" method="post">
+      {% csrf_token %}
+      <input type="hidden" id="deleteType" name="deleteType" value=""/>
+      <input type="hidden" id="deleteWord" name="deleteWord" value=""/>
+      <table id="lexiconsTable" class="table table-striped">
+          <thead>
+              <tr>
+                  <th scope="col">Lexicon Category</th>
+                  <th scope="col">Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for type, categories in lexicons_data.items %}
+                  {% for category in categories %}
+                      <tr class="lexicon-row {{ type }}">
+                          <td>{{ category }}</td>
+                          <td>
+                              <button type="button" class="btn btn-danger btn-sm" onclick="deleteWordFunction('{{type}}', '{{category}}')">Delete</button>
+                          </td>
+                      </tr>
+                  {% endfor %}
+              {% endfor %}
+          </tbody>
+      </table>
+    </form>
+</div>
+
+<!-- Add Lexicon Modal -->
+<div class="modal fade" id="addLexiconModal" tabindex="-1" role="dialog" aria-labelledby="addLexiconModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addLexiconModalLabel">Add Lexicon</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- <form id="addLexiconForm"> -->
+        <!-- <div class="form-group">
+          <label for="lexiconType" class="col-form-label">Type:</label>
+          <select id="lexiconType" class="form-control">
+              <option value="emos">Emotion</option>
+              <option value="topics">Topic</option>
+              <option value="pronouns">Pronoun</option>
+          </select>
+        </div> -->
+        <div class="form-group">
+          <label for="lexiconCategory" class="col-form-label">Category:</label>
+          <input type="text" class="form-control" id="lexiconCategory">
+        </div>
+        <div class="form-group">
+          <label for="lexiconWords" class="col-form-label">Words:</label>
+          <textarea class="form-control" id="lexiconWords" placeholder="Word1, Word2*, Word3, ..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeModal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="addLexiconForm()">Save changes</button>
+        </div>
+        <!-- </form> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

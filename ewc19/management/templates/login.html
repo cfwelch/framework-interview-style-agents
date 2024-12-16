@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div style="padding: 40px 20px 20px 20px">
+  <div class="login__container">
+    <form class="login__form" method="post" action="">
+      <h2>Login</h2>
+      <input class="login__input" name="username" type="text" required />
+      <input class="login__input" name="password" type="password" required />
+      {% csrf_token %} {% if error %}
+      <p class="error">{{error}}</p>
+      {% else %} {% endif %}
+      <input class="login__button" type="submit" value="Login" />
+    </form>
+  </div>
+</div>
+
+{% endblock %}

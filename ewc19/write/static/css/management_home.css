@@ -1,0 +1,68 @@
+.cards_container {
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  align-self: center;
+  width: 50%;
+  gap: 1rem;
+}
+
+.topic-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  cursor: pointer;
+  text-align: center;
+  width: auto;
+}
+
+.topic-card:hover {
+  border-radius: 25%;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0px 0px 5px 5px #1c94c4;
+  transition: 0.3s;
+}
+
+.topic-card > img {
+  width: 90px;
+}
+
+.topic-card > h3 {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.topic-card > h3 > p {
+  color: #1c94c4;
+  font-weight: 600;
+  margin: 0;
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-direction: row;
+  align-self: center;
+  width: 50%;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  /* border-bottom: 1px solid #1c94c4; */
+  /* border-width: 1px;
+  border-image: linear-gradient(left, #111, #2bc3ff, #111); */
+  border-bottom: 10px solid;
+  border-image-slice: 1;
+  border-width: 2px;
+  border-image-source: linear-gradient(to left, #fff, #2bc3ff, #fff);
+}
+
+h1 > p {
+  color: #1c94c4;
+  font-weight: 600;
+  margin: 0;
+}

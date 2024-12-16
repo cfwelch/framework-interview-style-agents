@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<script src="{% static 'chart.bundle.min.js'%}"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="module" src="{% static 'chart.utils.js'%}"></script>
+<script>
+const labels = {{labels|safe}};
+const data = {
+  labels: labels,
+  datasets: [
+    {
+      label: 'Topics distribution',
+      data: {{distribution}},
+      borderColor: '#2bc3ff',
+      stack: 'combined',
+      type: 'bar'
+    },
+    {
+      label: 'Topics distribution',
+      data: {{distribution}},
+      borderColor: '#2bc3ff',
+      stack: 'combined'
+    }
+  ]
+};
+
+    const config = {
+        type: 'line',
+        data: data,
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: 'Chart.js Stacked Line/Bar Chart'
+            }
+          },
+          scales: {
+            y: {
+              stacked: true
+            }
+          }
+        },
+      };
+    window.onload = function() {
+    var ctx = document.getElementById('canvas').getContext('2d');
+    window.myLine = new Chart(ctx, config);
+    };
+
+    function extractInteraction(token, topic) {
+      // show modal
+      let modal = document.getElementById("interactions-modal");
+      modal.style.display = "flex";
+      // show spinner
+      let modalBody = document.getElementById('interactions-modal__body');
+      modalBody.innerHTML = `<div id ="spinner" class="lds-ring"><div></div><div></div><div></div><div></div></div>`;
+
+      let data = new FormData();     
+      data.append("token", token); 
+      data.append("topic", topic); 
+      axios.post(`lda_results/extract_interactions`, data, {
+        headers: {
+          "X-CSRFTOKEN": '{{ csrf_token }}'
+          }
+      })
+      .then(response => {
+        htmlToAppend = `<div class="interactions-modal__body__entry">`
+          for ([key, value] of Object.entries(response.data)) {
+              value.text = value.text.replace(token, `<span class="highlight">${token}</span>`);
+              htmlToAppend = htmlToAppend + ` <div id="${key}" onClick="toSummary('${key}', '${value.int_id}')" class="interactions-modal__body__entry">
+                ${value.text}
+              </div> `
+            }
+          htmlToAppend = htmlToAppend + ` </div>`
+
+        modalBody.innerHTML = htmlToAppend;
+
+      })
+      .catch(error => console.error(error));
+    }
+
+    function toSummary(sessionId, intId) {
+      var form = document.createElement("form");
+      var sessionIdElement = document.createElement("input"); 
+      var intIdElement = document.createElement("input"); 
+      var csrf = document.createElement("input"); 
+      form.method = "POST";
+      form.action = "/interview/write/summary"; 
+      csrf.name="csrfmiddlewaretoken"
+      csrf.type="hidden"
+      csrf.value='{{ csrf_token }}'
+      sessionIdElement.value = sessionId;
+      sessionIdElement.name="session_id";
+      intIdElement.value = intId;
+      intIdElement.name="int_id";
+      form.appendChild(csrf);  
+      form.appendChild(sessionIdElement);  
+      form.appendChild(intIdElement); 
+      form.style.display = 'none'; 
+      document.body.appendChild(form); 
+      form.submit();
+    }
+</script>
+<div style="padding: 40px 20px 20px 20px;">
+    <div style="text-align:center;width:100%;">
+      <h2>LDA Results</h2>
+      <br/><br/>
+      <h2>Topic distribution</h2>
+      <table style="margin: 0 auto;width:100%;">
+        <tr>
+          <td><canvas id="canvas"></canvas></td>
+        </tr>
+      </table>
+    </div>
+        <div style="flex-wrap: wrap; margin-top: 3rem" class="management-summary-body__info-cards">
+            {% for key, value in terms.items %}
+                <div style="height: 35rem; width: 32%" class="management-summary-body__info-cards__card {% if key|divisibleby:2 %}gray-bg{% endif %}">
+                    <div style="flex-direction: column" class="title-info">
+                        <h4>Topic {{key}} {{value.topicName}}</h4>
+                        {% for term in value.terms %}
+                            {% for key_2, value_2 in term.items %}
+                                <p class="tokens" onClick="extractInteraction('{{ key_2 }}', '{{ topic }}')">
+                                    {{key_2}}: {{value_2}}
+                                </p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% if pyLDAvis != None %}
+          <div id="pyldavis" style="text-align:center;width:100%; padding-top: 3rem;">
+            <h2 class="text-align:center; padding:10rem">Topic Visualization</h1>
+              <br/><br/>
+            <div style="max-width: 100%; overflow-x: scroll">
+              {{ pyLDAvis|safe }}
+            </div>
+          </div>
+      {% endif %}
+  </div>
+  <div id="interactions-modal" class="modal">
+    <div class="interactions-modal">
+      
+      <div class="interactions-modal__header">
+        <h3 class="interactions-modal__header__title">Data exploration</h3>
+        <span onClick="document.getElementById('interactions-modal').style.display = 'none'" class="interactions-modal__header__button">&#10005;</span>
+      </div>
+      <div id="interactions-modal__body" class="interactions-modal__body"> 
+        {% for i in '0123456789'|make_list %}
+        <div class="interactions-modal__body__entry">
+          {% lorem 1 b random %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

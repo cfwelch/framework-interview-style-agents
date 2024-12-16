@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+
+<div style="padding: 40px 20px 20px 20px">
+  <div style="text-align: center;width: 100%;display: flex;flex-direction: column;">
+    <div style="margin: auto">
+        <h1 style="width:100%;">Create Topic</h1>
+    </div>
+
+    <div class="container mt-5">
+        <form action="/main/uploadpic" name="pic" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="file" id="file" accept="image/jpeg"/>
+            Topic Name: <input type="text" id="topicName" name="topicName"/>
+            Bot Name: <input type="text" id="botName" name="botName" />
+            <input type="submit" value="Upload"/>
+        </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

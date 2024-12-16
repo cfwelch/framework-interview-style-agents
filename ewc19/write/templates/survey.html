@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<style>
+</style>
+<script>
+$(function() {
+  $("input[type='radio']").checkboxradio({
+    icon: false
+  });
+});
+
+function submit_when_complete() {
+  if ($('fieldset:not(:has(:radio:checked))').length) {
+    $('#err_message').show();
+  } else {
+    $('#survey').submit();
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="base-padding">
+  <div class="center-full">
+    <h2>Interview</h2>
+    <br/><br/>
+    <form action="/interview/write/survey/" name="survey" id="survey" method="post">
+      <input type="hidden" id="before_write" name="before_write" value="{{before_write}}"/>
+      <input type="hidden" id="topic" name="topic" value="{{topic}}"/>
+      {% csrf_token %}
+      <table style="max-width: 100%;" class="float-margin">
+        <tr style="max-width: 100%;" class="float-margin">
+          <td class="rttd"></td>
+          <td class="squestion">
+            {% for tsmsg in smsg %}
+              {{tsmsg}}<br/><br/>
+            {% endfor %}
+            {% if snote %}
+            <div style='color: gray;'>
+              {{snote}}
+            </div>
+            <br/><br/>
+            {% endif %}
+          </td>
+        </tr>
+        {% for question in questions %}
+        <tr style="max-width: 100%;" class="float-margin">
+            <td class="rttd"></td>
+            <td class="squestion">
+              <b>Question: {{question.text}}</b>
+              <br/>
+              {% if question.type != 'yesno' %}
+              <fieldset style="text-align: justify;">
+                <legend>Answer: </legend>
+                {% with ''|center:question.num_options as range %}
+                {% for _ in range %}
+                  <label for="{{question.id}}:{{ forloop.counter0 }}">{{ forloop.counter }}</label>
+                  <input type="radio" name="q_{{question.id}}" id="{{question.id}}:{{ forloop.counter0 }}" value="{{ forloop.counter0 }}">
+                {% endfor %}
+                {% endwith %}
+              </fieldset>
+              {% else %}
+                <fieldset style="text-align: justify;">
+                  <legend>Answer: </legend>
+                  <label for="{{question.id}}:1">Yes</label>
+                  <input type="radio" name="q_{{question.id}}" id="{{question.id}}:1" value="1">
+                  <label for="{{question.id}}:0">No</label>
+                  <input type="radio" name="q_{{question.id}}" id="{{question.id}}:0" value="0">
+                </fieldset>
+              {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="2" style="display:none;color: red;" id="err_message">
+            Please provide an answer to all questions.
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <input type="button" class="sidebutton" style="display:inline-block;" onclick="submit_when_complete();" value="Submit"/>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+
+{% endblock %}

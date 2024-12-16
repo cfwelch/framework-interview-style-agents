@@ -1,0 +1,288 @@
+
+{% extends "base.html" %}
+{% load static %}
+{% load tags %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+<script>
+  const chartNew = Chart;
+</script>
+<script src="{% static 'jquery.autogrow-textarea.js'%}"></script>
+<script src="{% static 'chart.bundle.min.js'%}"></script>
+<style>
+  textarea {
+    resize: none;
+    outline: none;
+    overflow: auto;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+  }
+</style>
+<script>
+  function subsum(v) {
+    $('#int_id').val(v);
+    $('#sumform').submit();
+  }
+
+  function goback() {
+    window.history.back();
+  }
+</script>
+{% if complete %}
+<script>
+  var cc = 0;
+  $(function() {
+    // Create the topic chart
+    var tlabels = [
+      {% for i in tnames %}
+      '{{i}}',
+      {% endfor %}
+    ];
+    var tcounts = [
+      {% for i in tvals %}
+      {{i}},
+      {% endfor %}
+    ];
+    const data_topics = {
+      labels: tlabels,
+      datasets: [
+        {
+          label: 'dataset',
+          data: tcounts,
+          backgroundColor: [
+            {% for col in color_map %}
+            '{{ col }}',
+            {% endfor %}
+          ],
+          borderColor: 'rgba(0, 0, 0, 0.9)',
+          borderWidth: 1,
+          // fill: false,
+          // cubicInterpolationMode: 'monotone',
+          // tension: 0.4
+        }
+      ]
+    };
+    // Create the topics bar chart
+    var ctx = document.getElementById('topics-chart').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: data_topics,
+      options: {
+        // maintainAspectRatio: false,
+        height: 5,
+        responsive: true,
+        title: {
+          display: true,
+          text: 'Most Frequent Topics Discussed',
+          fontSize: 20,
+          fontColor: 'black',
+        },
+        legend: {
+          display: false,
+        },
+        interaction: {
+          intersect: false,
+        },
+        scales: {
+          yAxes: [{
+            display: true,
+            scaleLabel: {
+              display: true,
+              labelString: 'Word Count',
+              
+            },
+            ticks: {
+                beginAtZero: true,
+            },
+          }]
+        }
+      },
+    });
+
+});
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="base-padding">
+  <div class="center-full">
+    {% if complete %}
+      {% if request.user.is_authenticated %}
+        <div>
+          <table class="rand-button" style="margin: 0 auto;" onclick="goback();">
+            <tr>
+              <td><img src="{% static 'back.png' %}" width="32px;"/></td>
+              <td>Go Back</td>
+            </tr>
+          </table>
+        </div>
+        <br/><br/>
+      {% endif %}
+      <!-- <div style="margin: 0 auto;text-align: center;font-size: 2.5em;">
+        Completion Code: {{ request.session.amt_code }}
+      </div> -->
+      <br/><br/>
+      <div style="margin: 0 auto;text-align: left;">
+        <!-- TODO CUSTOMIZED END MESSAGE -->
+      </div>
+      <br/><br/>
+      <h2>Visual Summary</h2>
+      <br/><br/>
+      <table style="margin: 0 auto;width: 100%;" name="stats" id="stats">
+        <tr>
+          <td>
+            <div style="text-align: left;">
+              <h3>Before</h3>
+              {% for question in survey.before %}
+                <b>Question:</b> {{ question.text }}
+                <br/>
+                <b>Answer:</b> {{ question.answer }}
+                <br/>
+              {% endfor %}
+              <br />
+              <br />
+              <h3>After</h3>
+              {% for question in survey.after %}
+                <b>Question:</b> {{ question.text }}
+                <br/>
+                <b>Answer:</b> {{ question.answer }}
+                <br/>
+              {% endfor %}
+              <br />
+              <br />
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style='max-width:100%;'>
+            <canvas id='topics-chart' height='100px;'></canvas>
+          </td>
+        </tr>
+      </table>
+
+      <br/><br/>
+      <h2>Conversation History</h2>
+      <br/><br/>
+
+      <table style="margin: 0 auto;" id="convo" name="convo">
+        {% for turn in convo %}
+        <tr>
+          {% if turn.name == 'You' %}
+            <td></td>
+            <td>
+              <div class="your-bubble" style="text-align: left; margin:5px 0;display: inline-block;overflow-wrap: break-word;word-break: break-word;">
+                {{turn.text|linebreaksbr}}
+              </div>
+            </td>
+            <td><div class="your-ind">
+              <p style="padding: 0.5em 0;">Me</p>
+            </div></td>
+          {% else %}
+            <td><div class="comp-ind">
+              <p style="padding: 0.5em 0;">{{agent_name}}</p>
+            </div></td>
+            <td>
+              <div class="comp-bubble" style="margin:5px 0;">
+                {{turn.text|linebreaksbr}}
+              </div>
+            </td>
+            <td></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+
+      <!-- <form action="/write/delall/" name="delall" method="post">
+        {% csrf_token %}
+        <div id="reset" style="margin: 0 auto;width: 100%;text-align: center;">
+            <button id="deleteButton" class="sidebutton" style="margin: 0 auto;text-align: center;">Delete All</button>
+        </div>
+      </form> -->
+
+      <br/><br/>
+      <h2>What Now?</h2>
+      <br/><br/>
+      <div style="margin: 0 auto;text-align:left;">
+        You can get a copy of your answers and feedback by clicking 'Download' below. If you wish to do this exercise again, click 'Reset' and return to the writing page.
+        <br/><br/>
+        You have completed an interview with our interview! Thank you for 
+        your answers. They will help us with our research on public 
+        perception of emerging technologies and interviewing methods. If 
+        you want to learn more about our project, please visit our resource 
+        page.
+      </div>
+      <br/><br/>
+
+      {% if complete %}
+      <form action="/interview/write/reset/" name="reset" method="post">
+        {% csrf_token %}
+        <table class="center-full">
+          <tr style="width: 100%;">
+            <td style="max-width: 50%;text-align: center;" class="float-margin">
+              <input type='button' class="sidebutton" onclick='window.print()' value='Download' style="margin: 0 auto;text-align: center;"/>
+            </td>
+            <td style="max-width: 50%;text-align: center;" class="float-margin">
+              <button id="deleteButton" class="sidebutton" style="margin: 0 auto;text-align: center;">Reset</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+
+      <br/><br/>
+      <h2>Feedback</h2>
+      <br/><br/>
+      <div style="margin: 0 auto;text-align:left;">
+        We would be grateful for your feedback on the interaction you had. Your feedback will help us improve future iterations of this expressive interviewing exercise. This is completely optional. If you are able to provide feedback, please go to the next page.
+      </div>
+      <br/><br/>
+
+      <form action="/interview/write/feedback/" name="feedback" method="get">
+        {% csrf_token %}
+        <div style="width: 100%;text-align: center;">
+          <button id="feedbackButton" class="sidebutton" style="margin: 0 auto;text-align: center;">Next</button>
+        </div>
+      </form>
+      {% endif %}
+    {% elif interactions %}
+      <h2>Select a Summary</h2>
+      <br/><br/>
+      <form action="/interview/write/summary" name="sumform" id="sumform" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="int_id" name="int_id" value="4190"/>
+      </form>
+      <table style="margin: 0 auto;max-width: 100%;" id="summaries">
+        <tr>
+          <th colspan="2">Topic</th>
+          <th>Date</th>
+          <th>Word Count</th>
+          <th>Time</th>
+        </tr>
+        {% for inter in interactions %}
+          <tr>
+            <td>
+              <img src="{% static inter.icon %}" width="32px;"/>
+            </td>
+            <td style="text-align: left;">
+              <a onclick="subsum({{inter.int_id}});" class="clickable">{{inter.topic}}</a>
+            </td>
+            <td>{{inter.started}}</td>
+            <td>{{inter.word_count}}</td>
+            <td>{{inter.minutes}} min</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+    <h2>Summary</h2>
+    <br/><br/>
+    <table style="margin: 0 auto;max-width: 100%;" name="stats" id="stats">
+        <tr style="margin: 0 auto;max-width: 100%;">
+        <td>Before summary statistics can be provided, you must finish answering the main writing prompts suggested on the writing page.</td>
+        </tr>
+    </table>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

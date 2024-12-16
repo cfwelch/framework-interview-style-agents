@@ -1,0 +1,157 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<script>
+  function deleteQuestion(id) {
+    $("#question_id").val(id);
+    $("#survey_delete").submit();
+  }
+
+  function saveQuestion() {
+    var qtext = $("#new_question").val();
+    if (qtext.trim() != '') {
+      $("#survey_add").submit();
+    }
+  }
+
+  function toggleQuestion(inout, id) {
+    var ischecked = $("#" + inout + "q" + id).is(':checked');
+    var csrftoken = getCookie('csrftoken');
+
+    // Ajax request to update lexicons.py
+    $.ajax({
+      url: 'toggle_survey_question',
+      type: 'POST',
+      data: {
+        'question_id': id,
+        'checked': ischecked,
+        'inout': inout,
+        'csrfmiddlewaretoken': csrftoken
+      },
+      success: function(response) {
+        if(response.status == 'OK') {
+          showNotification(response.message, 'success');
+        }
+      },
+      error: function(error) {}
+    });
+  }
+
+  function showNotification(message, type) {
+    var notification = $('<div class="notification"></div>');
+    notification.addClass('alert-' + type);
+    notification.text(message);
+    $('#page-bgtop').append(notification);
+    setTimeout(function(){
+      notification.fadeOut();
+    }, 3000);
+  }
+</script>
+
+<style>
+  .notification {
+      position: fixed;
+      bottom: 20px;
+      text-align: center;
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      /* display: none; */
+  }
+  .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-4 page-header">
+      <h1 class="mb-12">Survey Management</h1>
+    </div>
+
+    <form action="/interview/admin/management/survey_delete" name="survey_delete" id="survey_delete" method="post">
+      {% csrf_token %}
+      <input type="hidden" id="question_id" name="question_id" value=""/>
+      <div class="container mt-5">
+        <table class="table-striped" style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="text-align: center;">ID</th>
+                    <th>Question</th>
+                    <th style="text-align: center;">Type</th>
+                    <th style="text-align: center;">Intro</th>
+                    <th style="text-align: center;">Outro</th>
+                    <th style="text-align: center;">Delete</th>
+                </tr>
+            </thead>
+            {% for question in questions %}
+            <tr>
+                <td style="text-align: center;">{{ question.id }}</td>
+                <td width="50%;">{{ question.text }}</td>
+                <td style="text-align: center;">{{ question.type }}</td>
+                <td style="text-align: center;"><input type="checkbox" id="introq{{ question.id }}" onchange="toggleQuestion('intro', '{{ question.id }}')" name="introq{{ question.id }}" {% if question.intro %}checked{% endif %}/></td>
+                <td style="text-align: center;"><input type="checkbox" id="outroq{{ question.id }}" onchange="toggleQuestion('outro', '{{ question.id }}')" name="outroq{{ question.id }}" {% if question.outro %}checked{% endif %}/></td>
+                <td style="text-align: center;">
+                  <input type="button" class="login__button" style="background-color: #ff4d4d; color: white; width: 6rem" onClick="deleteQuestion('{{question.id}}')" value="Delete"/>
+                </td>
+            </tr>
+            {% endfor %}
+          </table>
+      </div>
+    </form>
+
+    <br/>
+    <br/>
+    <form action="/interview/admin/management/survey_add" name="survey_add" id="survey_add" method="post">
+      {% csrf_token %}
+      <h3> Add New Question </h3>
+      <div id="new_question_div" class="add-new-interview-content" style="overflow: visible;">
+        <table style="width:100%;">
+          <tbody>
+            <tr>
+              <td width="20%" style="text-align: right;padding-right: 10px;">Question: </td>
+              <td width="80%"><textarea id="new_question" name="new_question" placeholder="Question" style="overflow: visible;resize: none;"></textarea></td>
+            </tr>
+            <tr>
+              <td width="20%" style="text-align: right;padding-right: 10px;">Intro: </td>
+              <td>
+                <input type="checkbox" id="intro_question" name="intro_question"/>
+              </td>
+            </tr>
+            <tr>
+              <td width="20%" style="text-align: right;padding-right: 10px;">Outro: </td>
+              <td>
+                <input type="checkbox" id="outro_question" name="outro_question"/>
+              </td>
+            </tr>
+            <tr>
+              <td width="20%" style="text-align: right;padding-right: 10px;">Type: </td>
+              <td>
+                <select id="question_type" name="question_type">
+                  {% for otype in type_options %}
+                  <option value="{{ otype.value }}">{{ otype.name }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            <tr></tr>
+              <td width="20%" style="text-align: right;padding-right: 10px;"></td>
+              <td>
+                <input class="btn btn-green" type="button" value="Add Question" onClick="saveQuestion()"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </form>
+
+</div>
+
+
+{% endblock %}

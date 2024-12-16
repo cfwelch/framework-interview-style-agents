@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+  function redirect(topic) {
+    window.location.href = "faq_index/?topic=" + topic;
+  }
+
+  function expand(id) {
+    let element = document.getElementById(id);
+
+    if (element.classList.contains('expand')) {
+        element.classList.remove('expand');
+        document.getElementById(`${id}-arrow`).style.transform = "";
+      } else {
+        element.classList.add('expand');
+        document.getElementById(`${id}-arrow`).style.transform = "rotate(180deg)";
+    }
+  }
+
+  function deleteFaq(id) {
+    if (confirm("Are you sure you want to delete this record?")) {
+      axios.get(`delete_faq?id=${id}`)
+      .then(response => {
+        window.location = window.location
+      })
+      .catch(error => console.error(error));
+    } else {
+      return;
+    }
+  }
+
+  function createFaq(topic) {
+    question = document.getElementById('newFaqQuestion').value;
+    answer = document.getElementById('newFaqAnswer').value;
+
+    let data = new FormData();     
+    data.append("answer", answer); 
+    data.append("question", question); 
+    data.append("topic", topic); 
+
+    axios.post(`add_faq`, data, {
+      headers: {
+        "X-CSRFTOKEN": '{{ csrf_token }}'
+        }
+    })
+    .then(response => {
+      window.location = window.location
+    })
+    .catch(error => console.error(error));
+  }
+
+</script>
+<div style="padding: 40px 20px 20px 20px">
+  <div
+    style="
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+        <h1>FAQ</h1>
+        {% if request.user.is_authenticated %}
+          <div>
+            <input style="float: right; margin: 1rem 0" onClick="document.getElementById('addFaq-modal').style.display = 'flex'" class="login__button" type="button" value="Add new question"/>
+          </div>
+        {% endif %}
+
+        {% if not no_topic or request.user.is_authenticated %}
+          <div class="faq">
+              {% for value in faq %}
+                  <div class="faq__entry">
+                      <div onClick="expand('{{value.id}}')" class="faq__entry__question">
+                          <h4>{{value.question}}</h4>
+                          {% if request.user.is_authenticated %}
+                            <input style="background-color: #ff4d4d; color: white; width:5rem" onClick="deleteFaq('{{value.id}}')" class="login__button" type="button" value="Delete"/>
+                          {% endif %}
+                          <span id="{{value.id}}-arrow" class="arrow">&#8744;</span>
+                      </div>
+                      <p id="{{value.id}}" class="faq__entry__answer">{{value.answer}}</p>
+                  </div>
+              {% endfor %}
+          </div>
+        {% else %}
+          <div class="faq" style="text-align: center;">
+            <br/><br/>
+            Start an interview to see it's FAQ.
+          </div>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+          <div id="addFaq-modal" class="modal">
+            <div class="interactions-modal">
+              
+              <div class="interactions-modal__header">
+                <h3 class="interactions-modal__header__title">Add new FAQ</h3>
+                <span onClick="document.getElementById('addFaq-modal').style.display = 'none'" class="interactions-modal__header__button">&#10005;</span>
+              </div>
+              <div > 
+                <form class="addFaq-modal__body">
+
+                  <input required id="newFaqQuestion" style="width: 70%; margin-bottom: 1rem" class="login__input" type="text" name="Question" placeholder="question"/>
+                  <textarea required id="newFaqAnswer" class="login__input" name="answer" rows="4" cols="50" placeholder="Answer"></textarea>
+                  <input type="button" class="login__button" onClick="createFaq('{{topic}}')" value="Submit"/>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+  </div>
+  {% endblock %}
+</div>

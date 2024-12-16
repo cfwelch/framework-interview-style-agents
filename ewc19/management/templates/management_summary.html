@@ -1,0 +1,344 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="{% static 'chart.bundle.min.js'%}"></script>
+<script>
+  function redirect(menu) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const topic = urlParams.get('topic');
+    window.location.href = menu; //  + "/?topic=" + topic
+  }
+
+  function generateCsv(topic) {
+    axios.get('extract_conversations?topic=' + topic)
+      .then(response => {
+        let path = response.data;
+        const link = document.createElement("a");
+        link.href = path;
+        link.download = 'conversations_' + topic + '.csv';
+        link.click();
+      })
+      .catch(error => console.error(error));
+    };
+
+    function deleteConversation(formId, id) {
+      if (confirm(`Are you sure you want to delete the record with the ID ${id}?`)) {
+        document.getElementById(formId).submit();
+      } else {
+        return;
+      }
+    };
+  $(function() {
+    // Create survey charts
+    {% for sqk, sqv in survey_summary.items %}
+      {% if sqv.type == "yesno" %}
+      var ctx = document.getElementById('chart{{ sqk }}').getContext('2d');
+      var myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: ['Yes', 'No'],
+              datasets: [
+                {% if sqv.before %}
+                {
+                  label: 'Before Interview',
+                  data: [{{ sqv.answers.1.1 }}, {{ sqv.answers.1.0 }}],
+                  backgroundColor: 'rgba(20, 255, 50, 0.2)',
+                  borderColor: 'rgba(20, 255, 50, 1)',
+                  borderWidth: 1
+                },
+                {% endif %}
+                {% if sqv.after %}
+                {
+                  label: 'After Interview',
+                  data: [{{ sqv.answers.0.1 }}, {{ sqv.answers.0.0 }}],
+                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  borderWidth: 1
+                },
+                {% endif %}
+              ]
+          },
+          options: {
+              title: {
+                display: true,
+                text: [
+                  {% for tpart in sqv.text %}
+                  '{{ tpart|safe }}',
+                  {% endfor %}
+                ],
+                fontSize: 20,
+                fontColor: 'black',
+              },
+              legend: {
+                position: 'top'
+              },
+              scales: {
+                  yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Number of Participants',
+                      
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                    },
+                  }]
+              }
+          }
+      });
+      {% else %}
+      // Create the survey question organoids in favor chart
+      var ctx = document.getElementById('chart{{ sqk }}').getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: {{ sqv.labels }},
+          datasets: [
+            {% if sqv.before %}
+            {
+              label: 'Before interview',
+              data: [
+                {% for key,val in sqv.answers.1.items %}
+                {{ val }},
+                {% endfor %}
+              ],
+              borderColor: 'rgba(46, 204, 113, 0.9)',
+              fill: false,
+              cubicInterpolationMode: 'monotone',
+              tension: 0.4
+            }, 
+            {% endif %}
+            {% if sqv.after %}
+            {
+              label: 'After interview',
+              data: [
+                {% for key,val in sqv.answers.0.items %}
+                {{ val }},
+                {% endfor %}
+              ],
+              borderColor: 'rgba(50, 152, 219, 0.8)',
+              fill: false,
+              tension: 0.4
+            },
+            {% endif %}
+          ]
+        },
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: [
+              {% for tpart in sqv.text %}
+              '{{ tpart|safe }}',
+              {% endfor %}
+            ],
+            fontSize: 20,
+            fontColor: 'black',
+          },
+          interaction: {
+            intersect: false,
+          },
+          scales: {
+            yAxes: [{
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: 'Number of Participants',
+                
+              },
+              ticks: {
+                  beginAtZero: true,
+              },
+            }]
+          }
+        },
+      });
+      {% endif %}
+    {% endfor %}
+
+    // Create the topics bar chart
+    var tlabels = [
+      {% for i in topic_summary_labels %}
+      '{{i}}',
+      {% endfor %}
+    ];
+    var tcounts = [
+      {% for i in topic_summary_counts %}
+      {{i}},
+      {% endfor %}
+    ];
+    const data_topics = {
+      labels: tlabels,
+      datasets: [
+        {
+          label: 'dataset',
+          data: tcounts,
+          backgroundColor: ['rgba(84, 71, 140, 1)', 'rgba(44, 105, 154, 1)', 'rgba(4, 139, 168, 1)', 'rgba(13, 179, 158, 1)', 'rgba(22, 219, 147, 1)', 'rgba(131, 227, 119, 1)', 'rgba(185, 231, 105, 1)', 'rgba(239, 234, 90, 1)', 'rgba(241, 196, 83, 1)', 'rgba(242, 158, 76, 1)'],
+          borderColor: 'rgba(0, 0, 0, 0.9)',
+          borderWidth: 1,
+          // fill: false,
+          // cubicInterpolationMode: 'monotone',
+          // tension: 0.4
+        }
+      ]
+    };
+    var ctx = document.getElementById('topics-chart').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: data_topics,
+      options: {
+        // maintainAspectRatio: false,
+        height: 10,
+        responsive: true,
+        title: {
+          display: false,
+          // text: 'Most Frequent Topics Discussed'
+        },
+        legend: {
+          display: false,
+        },
+        interaction: {
+          intersect: false,
+        },
+        scales: {
+          yAxes: [{
+            display: true,
+            title: {
+              display: true,
+              text: 'Value'
+            },
+            ticks: {
+              beginAtZero: true,
+            },
+            // suggestedMin: -10,
+            // suggestedMax: 200
+          }]
+        }
+      },
+    });
+});
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+  var topics_data = [];
+
+  {% for topic in topics_distribution %}
+  var new_topic = {
+    y: {{ topic.data }},
+    type: 'box',
+    name:'{{ topic.name }}'
+  };
+  topics_data.push(new_topic);
+  {% endfor %}
+  
+  Plotly.newPlot('lexicon-chart', topics_data);
+});
+</script>
+
+<div style="padding: 40px 20px 20px 20px">
+  <div
+    style="
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <div class="management-summary-top">
+      <div class="management-summary-top__header">
+        <div class="management-summary-top__header">
+          {% if icon_image %}
+          <img class="management-summary-top__header__img" src="{% static 'uploads/'|add:icon_image %}" />
+          {% endif %}
+          <h3>{{ request.session.active_topic }}</h3>
+        </div>
+        <input class="csv-button" onClick="redirect('summary/lda')" type="button" value="LDA"/>
+        <input class="csv-button" onClick="redirect('summary/bertopic')" type="button" value="Bertopic"/>
+        <input class="csv-button" onClick="generateCsv('{{ topic }}')" type="button" value="Download as csv"/>
+      </div>
+      <div class="management-summary-top__body" style="display: flex;justify-content: space-between;">
+        <div class="management-summary-top__body__conversations title-info">
+          <p>Total number of conversations: #{{number_of_interviews}}</p>
+        </div>
+        <div style="cursor: pointer;" class="management-summary-top__body__time hover-effect title-info" onClick="redirect('summary/time')">
+          <p>Average time spent: {{average_time}}</p>
+        </div>
+        <div style="cursor: pointer;" class="management-summary-top__body__words hover-effect title-info" onClick="redirect('summary/word_count')">
+          <p>Average word count: {{average_word_count}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="management-summary-body">
+      <div class="management-summary-body__info-cards">
+          <div style="width: 100%;" class="management-summary-body__info-cards__card gray-bg">
+            <h4>Most Frequent Topics Discussed:</h4>
+            <!--{% for key, value in topic_summary.items %}
+            <div class="title-info">
+              <p>
+                <b>{{key}}</b> appeared in {{value}} interaction{% if value > 1 %}s{% endif %}
+              </p>
+            </div>
+            {% endfor %}-->
+            <canvas id='topics-chart' height='100'></canvas>
+          </div>
+    </div>
+
+    <div style="margin-top: 30px">
+      <div style="text-align:center;width:100%;">
+        <h2>Detected Word Categories</h2>
+        <div id='lexicon-chart'><!-- Plotly chart will be drawn inside this DIV --></div>
+      </div>
+    </div>
+
+    {% for q,v in survey_summary.items %}
+    <div style="margin: 5rem 0;">
+      <canvas id='chart{{ v.id }}' height='100'></canvas>
+    </div>
+    {% endfor %}
+
+    <!-- <div style="margin: 5rem 0;">
+      <canvas id='organoids_favor_chart' height='150'></canvas>
+    </div> -->
+
+    <table style="margin-top: 3rem; width: 100%" class="table-striped">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <!-- <th scope="col">Topic</th> -->
+          <th scope="col">Date</th>
+          <th scope="col">Word Count</th>
+          <th scope="col" colspan="2" width="20%">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for conversation in all_conversations %}
+        <tr style="vertical-align: center;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+          <td><b>{{conversation.id}}</b></td>
+          <!-- <td>{{conversation.topic}}</td> -->
+          <td>{{conversation.timestamp}}</td>
+          <td>{{conversation.word_count}}</td>
+          <td>
+            <form action="/interview/write/summary" method="post" style="padding-right: 5px;">
+              {% csrf_token %}
+              <input name="int_id" type="hidden" value="{{conversation.id}}"/>
+              <input name="session_id" type="hidden" value="{{conversation.session_id}}"/>
+              <input style="width: 7rem;" class="login__button" type="submit" value="To summary"/>
+            </form>
+          </td>
+          <td>
+            <form id="delete-{{forloop.counter}}" action="/interview/admin/management/write/delete_conversation" method="post">
+              {% csrf_token %}
+              <input name="user_id" type="hidden" value="{{conversation.user_id}}"/>
+              <input name="topic" type="hidden" value="{{topic}}"/>
+              <input name="session_id" type="hidden" value="{{conversation.session_id}}"/>
+              <input type="button" class="login__button" style="background-color: #ff4d4d; color: white; width: 6rem" onClick="deleteConversation('delete-{{forloop.counter}}', '{{conversation.id}}')" value="Delete"/>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endblock %}
+  </div>
+</div>
+

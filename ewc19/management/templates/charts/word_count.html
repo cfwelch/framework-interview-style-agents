@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<script src="{% static 'chart.bundle.min.js'%}"></script>
+<script type="module" src="{% static 'chart.utils.js'%}"></script>
+<script>
+const labels = [
+  {% for i in bin_labels %}
+  '{{ i }}',
+  {% endfor %}
+];
+const data = {
+  labels: labels,
+  datasets: [
+    {
+      label: 'Number of conversations',
+      data: {{ totals }},
+      borderColor: '#2bc3ff',
+      stack: 'combined',
+      type: 'bar'
+    },
+    {
+      label: 'Number of conversation',
+      data: {{ totals }},
+      borderColor: '#2bc3ff',
+      stack: 'combined'
+    }
+  ]
+};
+
+    const config = {
+        type: 'line',
+        data: data,
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: 'Chart.js Stacked Line/Bar Chart'
+            }
+          },
+          scales: {
+            y: {
+              stacked: true
+            }
+          }
+        },
+      };
+    window.onload = function() {
+    var ctx = document.getElementById('canvas').getContext('2d');
+    window.myLine = new Chart(ctx, config);
+    };
+</script>
+<div style="padding: 40px 20px 20px 20px;">
+    <div style="text-align:center;width:100%;">
+      <h2>Words Count</h2>
+      <br/><br/>
+      <table style="margin: 0 auto;width:100%;">
+        <tr>
+          <td><canvas id="canvas"></canvas></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+{% endblock %}

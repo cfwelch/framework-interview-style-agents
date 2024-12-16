@@ -1,0 +1,44 @@
+{
+    "responses": {"how_are_you": "How are you doing today?",
+
+    "ref_generic1": "Interesting to hear that. How does what you say relate to your values?",
+    "ref_generic2": "Say a little more.", 
+    "ref_generic3_deprecated": "I see. Tell me about a time when things were different.",
+    "ref_generic3": "I see. Tell me about other people you know who see things differently than you do about these issues.",
+    "ref_generic4": "I hear you. What have you tried in the past that has worked well?",
+    "ref_generic5": "Can you tell me more?",
+    "ref_generic6": "Tell me a little more about that.",
+    "ref_generic7": "It sounds like you’ve put some thought into these things. How does thinking about them make you feel?",
+
+    "welcome": "I'm happy to help!",
+    "end_question": "Thank you for everything you shared with me today. I do not have any more questions. Before going to your feedback, is there anything else you wanted to say?",
+    "end": "",
+    "saved": "Writing saved!",
+
+    "interview_intro_v2": "Welcome to the research project. Although I'm not really human, people call me '{NAME}' (which is short for computer program). I will be asking you a few questions. Try to go into detail about your deepest thoughts, fears, and perspectives, without worrying about spelling or writing style. Just write. Try to be as honest as you can. At the end, you will get some feedback based on your writing.\n\n",
+    "welcome_back": "Welcome back, {name}. We're ready to begin.",
+    "repeat_name": "Okay, {name}, we're ready to begin. I will be asking you a few questions. Try to go into detail about your deepest thoughts, fears, and perspectives, without worrying about spelling or writing style. Just write. Try to be as honest as you can. At the end, you will get some feedback based on your writing.",
+
+    "write_ask1": "Please spend some time writing about this question. The more you write, the better I can understand your perspective.",
+    "write_ask2": "Try to spend at least two minutes writing about this question, the counter on the left can help you.",
+    "write_ask3": "Write at least 2-3 sentences.",
+    "write_ask4": "A longer answer will help me give you more useful feedback after the interview.",
+    
+    "lt15sec1": "Say a little more about that.",
+    "lt15sec2": "Can you expand on that idea?",
+    "lt15sec3": "Tell me more...",
+    "lt15sec4": "Is there anything else that could be helpful for me to understand your point of view?",
+    "lt15sec5": "This is helpful. How do you feel now as you talk about this?",
+    "lt15sec6": "Where do your feelings about this come from?",
+    "lt15sec7": "Anything you would like to add?",
+    "lt15sec8": "Don’t stop. Say more...",
+    "lt15sec9": "How does that make you feel?",
+    "lt15sec10": "Following up to that, where will you go from here?",
+
+    "connector1": "Thanks for sharing. Now let’s move on to the next question.",
+    "connector2": "Thank you, I would like to now ask you another question.",
+    "connector3": "I appreciate you sharing that. Let's go in a slightly different direction.",
+    "connector4": "Thank you for sharing that with me. Let me ask you something else.",
+    "connector5": "I understand where you're coming from. Can you answer another question?",
+    "connector6": "Let’s move on to another topic."}
+}

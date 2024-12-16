@@ -1,0 +1,431 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<script>
+    window.numberOfQuestions = 1;
+    window.numberOfReflections = 1;
+    window.respectOrder = true;
+
+  function redirect(topic) {
+    window.location.href = "interview/?topic=" + topic;
+  }
+
+  function deleteQuestion(qid) {
+    document.getElementById(qid).remove();
+    event.stopPropagation();
+  }
+
+  function deleteReflection(rid) {
+    document.getElementById('ref-' + rid).remove();
+    updateReflectionsOptions();
+    event.stopPropagation();
+  }
+
+  function handleExpand(id) {
+    let element = document.getElementById(`content-${id}`);
+    let arrow = document.getElementById(`arrow-${id}`);
+    if (element.classList.contains('expand')) {
+        element.classList.remove('expand');
+    } else {
+        element.classList.add('expand');
+    }
+
+    if (arrow.classList.contains('arrow_expand')) {
+        arrow.classList.remove('arrow_expand');
+    } else {
+        arrow.classList.add('arrow_expand');
+    }
+  }
+
+  function handleExpandReflection(id) {
+    let element = document.getElementById(`ref-content-${id}`);
+    let arrow = document.getElementById(`reflection-arrow-${id}`);
+    if (element.classList.contains('expand')) {
+        element.classList.remove('expand');
+    } else {
+        element.classList.add('expand');
+    }
+
+    if (arrow.classList.contains('arrow_expand')) {
+        arrow.classList.remove('arrow_expand');
+    } else {
+        arrow.classList.add('arrow_expand');
+    }
+  }
+
+function addNewQuestion() {
+    window.numberOfQuestions = window.numberOfQuestions + 1;
+    var div = document.getElementById('questions');
+    var newQuestion = document.createElement('div');
+    newQuestion.id = window.numberOfQuestions;
+    newQuestion.className = "interview-details__content__questions__question-card";
+    newQuestion.innerHTML = `
+        <div onClick="handleExpand('${window.numberOfQuestions}')" class="interview-details__content__questions__question-card__header">
+            <div class="interview-details__content__questions__question-card__header__order">
+                <p>Order: <span id="question-order-${window.numberOfQuestions}">${window.numberOfQuestions}</span></p>
+            </div>
+            <div class="interview-details__content__questions__question-card__header__question">
+                <p>Click to edit question</p>
+            </div>
+
+            <img id="arrow-${window.numberOfQuestions}" class="interview-details__content__questions__question-card__header__arrow" src="{% static 'down.png' %}" />
+            <input type="button" class="btn btn-red" value="Delete" onclick="deleteQuestion(${window.numberOfQuestions})" />
+        </div>
+        <div id="content-${window.numberOfQuestions}" class="add-new-interview-content">
+            <textarea id="question-content-${window.numberOfQuestions}" placeholder="Question"> </textarea>
+        </div>
+    `;
+    div.appendChild(newQuestion);
+}
+
+function addNewReflection() {
+    window.numberOfReflections = window.numberOfReflections + 1;
+    var div = document.getElementById('reflections');
+    var newReflection = document.createElement('div');
+    newReflection.id = "ref-" + window.numberOfReflections;
+    newReflection.className = "interview-details__content__questions__question-card";
+    newReflection.innerHTML = `
+        <div onClick="handleExpandReflection('${window.numberOfReflections}')" class="interview-details__content__questions__question-card__header">
+            <div class="interview-details__content__questions__question-card__header__order">
+                <p><span id="reflection-order-${window.numberOfReflections}">${window.numberOfReflections}</span></p>
+            </div>
+            <div class="interview-details__content__questions__question-card__header__question">
+                <p>Click to edit reflection</p>
+            </div>
+
+            <img id="reflection-arrow-${window.numberOfReflections}" class="interview-details__content__questions__question-card__header__arrow" src="{% static 'down.png' %}" />
+            <input type="button" class="btn btn-red" value="Delete" onclick="deleteReflection(${window.numberOfReflections})" />
+        </div>
+        <div id="ref-content-${window.numberOfReflections}" class="add-new-interview-content">
+            <textarea id="reflection-content-${window.numberOfReflections}" placeholder="Reflection"> </textarea>
+
+            <h4>Reflection Triggers</h4>
+                <!-- Dropdown for dom_top -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                    <label for="dom_top-${window.numberOfReflections}" style="font-weight: bold; margin-right: 10px; width: 15rem">Category:</label>
+                    <select id="dom_top-${window.numberOfReflections}" style="padding: 5px; margin-right: 15px; width: 100%;">
+                        <option value=""></option>
+                        {% for top in dom_top %}
+                        <option value="{{ top }}" title="{{ top }}">{{ top }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Dropdown for sentiment -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                    <label for="sentiment-${window.numberOfReflections}" style="font-weight: bold; margin-right: 10px; width: 15rem">Sentiment:</label>
+                    <select id="sentiment-${window.numberOfReflections}" style="padding: 5px; margin-right: 15px; width: 100%;">
+                        <option value=""></option>
+                        {% for s in sentiment %}
+                        <option value="{{ s }}" title="{{ s }}">{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Dropdown for reflected -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                    <label for="reflected-${window.numberOfReflections}" style="font-weight: bold; margin-right: 10px; width: 15rem">Reflected:</label>
+                    <select id="reflected-${window.numberOfReflections}" style="padding: 5px; margin-right: 15px; width: 100%;">
+                        <option value=""></option>
+                        {% for reflection in reflections %}
+                        <option value="{{ reflection.id }}" title="{{ reflection.reflection }}">{{ reflection.reflection }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Dropdown for not_reflected -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                    <label for="not_reflected-${window.numberOfReflections}" style="font-weight: bold; margin-right: 10px; width: 15rem">Not Reflected:</label>
+                    <select id="not_reflected-${window.numberOfReflections}" style="padding: 5px; margin-right: 15px; width: 100%;">
+                        <option value=""></option>
+                        {% for reflection in reflections %}
+                        <option value="{{ reflection.id }}" title="{{ reflection.reflection }}">{{ reflection.reflection }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    `;
+    div.appendChild(newReflection);
+
+    updateReflectionsOptions();
+}
+
+  function validateQuestions(questions) {
+    document.getElementById("general-error").innerHTML = ""
+    questions.forEach((item, index) => {
+        console.log(item.question)
+        if (item.question === null || item.question.trim() !== null) {
+            document.getElementById("general-error").innerHTML = "Some of your questions are empty."
+            return false
+        }
+    })
+
+    return true;
+  }
+
+function validateReflections(reflections) {
+    document.getElementById("general-error").innerHTML = ""
+    reflections.forEach((item, index) => {
+        if (item.reflection === null || item.reflection.trim() === '') {
+            document.getElementById("general-error").innerHTML = "Some of your reflections are empty or not valid."
+            return false
+        }
+
+        // Check if at least one condition is not empty
+        let hasCondition = false;
+        for (let key in item.conditions) {
+            if (item.conditions[key] !== null && item.conditions[key].trim() !== '') {
+                hasCondition = true;
+                break;
+            }
+        }
+
+        if (!hasCondition) {
+            document.getElementById("general-error").innerHTML = "Each reflection must have at least one non-empty condition."
+            return false
+        }
+    })
+
+    return true;
+}
+
+function updateReflectionsOptions() {
+    var numReflections = window.numberOfReflections;
+
+    var existingReflections = [];
+    for (var i = 1; i <= numReflections; i++) {
+        var reflectedDropdown = document.getElementById('reflected-' + i);
+        if (reflectedDropdown != null) {
+            existingReflections.push(i);
+        }
+    }
+
+    for (var i = 1; i <= numReflections; i++) {
+        if (!existingReflections.includes(i)) {
+            continue;
+        }
+        var reflectedDropdown = document.getElementById('reflected-' + i);
+        var notReflectedDropdown = document.getElementById('not_reflected-' + i);
+
+        reflectedDropdown.innerHTML = '';
+        notReflectedDropdown.innerHTML = '';
+
+        var emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.text = '';
+
+        reflectedDropdown.add(emptyOption.cloneNode(true));
+        notReflectedDropdown.add(emptyOption.cloneNode(true));
+
+        for (var j = 1; j <= numReflections; j++) {
+            if (j !== i && existingReflections.includes(j)) {
+                var id = j;
+
+                var option = document.createElement('option');
+                option.value = "reflection_" + id;
+                // option.value = id;
+                option.text = "Reflection " + id;  // Display "Reflection {id}" in the dropdown
+
+                reflectedDropdown.add(option.cloneNode(true));
+                notReflectedDropdown.add(option.cloneNode(true));
+            }
+        }
+    }
+}
+
+  function saveInterview(setAsActive, topic) {
+    let questions = [];
+    for (var i = 1; i <= window.numberOfQuestions; i++) {
+        var questionContent = document.getElementById(`question-content-${i}`);
+        if (questionContent != null) {
+            curr_question = document.getElementById(`question-content-${i}`).value;
+            curr_order = document.getElementById(`question-order-${i}`).innerHTML;
+            tmp = {question: curr_question, order: curr_order}
+            questions.push(tmp);
+        }
+    }
+    
+    if (!validateQuestions(questions)) {
+        return;
+    } 
+
+    let reflections = [];
+    for (var i = 1; i <= window.numberOfReflections; i++) {
+        var reflectedDropdown = document.getElementById('reflected-' + i);
+        if (reflectedDropdown != null) {
+            let curr_reflection = document.getElementById(`reflection-content-${i}`).value;
+            let dom_top = document.getElementById(`dom_top-${i}`).value;
+            let sentiment = document.getElementById(`sentiment-${i}`).value;
+            let reflected = document.getElementById(`reflected-${i}`).value;
+            let not_reflected = document.getElementById(`not_reflected-${i}`).value;
+
+            let tmp = {
+                reflection: curr_reflection,
+                conditions: {
+                    dom_top: dom_top,
+                    sentiment: sentiment,
+                    reflected: reflected,
+                    not_reflected: not_reflected,
+                }
+            };
+
+            reflections.push(tmp);
+        }
+    }
+
+    if (!validateReflections(reflections)) {
+        return;
+    } 
+
+    let note = document.getElementById('note').value;
+    
+    let data = new FormData();
+    data.append("questions", JSON.stringify(questions)); 
+    data.append("setAsActive", setAsActive); 
+    data.append("topic", topic);
+    data.append("respectOrder", window.respectOrder ? 1 : 0);
+    data.append("note", note);
+    data.append("reflections", JSON.stringify(reflections));
+    axios.post(`post_add_new_interview`, data, {
+    headers: {
+        "X-CSRFTOKEN": '{{ csrf_token }}'
+        }
+    })
+    .then(response => {
+        window.location.href = "interview/?topic=" + topic;
+    })
+    .catch(error => console.error(error));
+  }
+</script>
+<div style="padding: 40px 20px 20px 20px">
+  <div
+    style="
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <div class="interview-details__header">
+        <div class="interview-details__header__date">
+            <p>Create new interview</p>
+        </div>
+        <div class="interview-details__header__image">
+            {% if icon_image %}
+            <img class="management-summary-top__header__img" src="{% static 'uploads/'|add:icon_image %}" />
+            {% endif %}
+            <h3>{{ request.session.active_topic }}</h3>
+        </div>
+    </div>
+
+    <div class="add-new-interview-buttons">
+        <input class="btn btn-blue" type="button" value="Add new question" onClick="addNewQuestion()"/>
+        <input class="btn btn-blue" type="button" value="Add new reflection" onClick="addNewReflection()"/>
+    
+    <div style="display: flex; gap: 0.25rem; align-items: center; justify-content: center">
+        <p style="font-weight: bold; font-size: small">Respect questions order</p>
+        <div class="checkbox-wrapper-10">
+            <input onChange="window.respectOrder = !window.respectOrder" class="tgl tgl-flip" id="cb5" type="checkbox" checked />
+            <label class="tgl-btn" data-tg-off="No" data-tg-on="Yes!" for="cb5"></label>
+        </div>
+    </div>
+    </div>
+
+    <p id="general-error" class="error"></p>
+
+    <div class="interview-details__content">
+        <div id="questions" class="interview-details__content__questions">
+                <div id="1" class="interview-details__content__questions__question-card">
+                    <div onClick="handleExpand('1')" class="interview-details__content__questions__question-card__header">
+                        <div class="interview-details__content__questions__question-card__header__order">
+                            <p>Order: <span id="question-order-1">1</span></p>
+                        </div>
+                        <div class="interview-details__content__questions__question-card__header__question">
+                            <p>Click to edit question</p>
+                        </div>
+
+                        <img id="arrow-1" class="interview-details__content__questions__question-card__header__arrow" src="{% static 'down.png' %}" />
+                        <input type="button" class="btn btn-red" value="Delete" onclick="deleteQuestion(1)" />
+                    </div>
+                    <div id="content-1" class="add-new-interview-content">
+                        <textarea id="question-content-1" placeholder="Question"></textarea>
+                    </div>
+                </div>
+        </div>
+
+        <h3>Reflections</h3>
+        <div id="reflections" class="interview-details__content__questions">
+            <div id="ref-1" class="interview-details__content__questions__question-card">
+                <div onClick="handleExpandReflection('1')" class="interview-details__content__questions__question-card__header">
+                    <div class="interview-details__content__questions__question-card__header__order">
+                        <p><span id="reflection-order-1">1</span></p>
+                    </div>
+                    <div class="interview-details__content__questions__question-card__header__question">
+                        <p>Click to edit reflection</p>
+                    </div>
+
+                    <img id="reflection-arrow-1" class="interview-details__content__questions__question-card__header__arrow" src="{% static 'down.png' %}" />
+                    <input type="button" class="btn btn-red" value="Delete" onclick="deleteReflection(1)" />
+                </div>
+                <div id="ref-content-1" class="add-new-interview-content">
+                    <textarea id="reflection-content-1" placeholder="Reflection"></textarea>
+                    <!-- onChange="updateReflectionsOptions()" -->
+                    
+                    <h4>Reflection Triggers</h4>
+
+                    <!-- Dropdown for dom_top -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                        <label for="dom_top-1" style="font-weight: bold; margin-right: 10px; width: 15rem">Category:</label>
+                        <select id="dom_top-1" style="padding: 5px; margin-right: 15px; width: 100%;">
+                            <option value=""></option>
+                            {% for top in dom_top %}
+                            <option value="{{ top }}" title="{{ top }}">{{ top }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Dropdown for sentiment -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                        <label for="sentiment-1" style="font-weight: bold; margin-right: 10px; width: 15rem">Sentiment:</label>
+                        <select id="sentiment-1" style="padding: 5px; margin-right: 15px; width: 100%;">
+                            <option value=""></option>
+                            {% for s in sentiment %}
+                            <option value="{{ s }}" title="{{ s }}">{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Dropdown for reflected -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                        <label for="reflected-1" style="font-weight: bold; margin-right: 10px; width: 15rem">Reflected:</label>
+                        <select id="reflected-1" style="padding: 5px; margin-right: 15px; width: 100%;">
+                            <option value=""></option>
+                            {% for reflection in reflections %}
+                            <option value="{{ reflection.id }}" title="{{ reflection.reflection }}">{{ reflection.reflection }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Dropdown for not_reflected -->
+                    <div style="display: flex; align-items: center; margin-bottom: 10px; width: 100%">
+                        <label for="not_reflected-1" style="font-weight: bold; margin-right: 10px; width: 15rem">Not Reflected:</label>
+                        <select id="not_reflected-1" style="padding: 5px; margin-right: 15px; width: 100%;">
+                            <option value=""></option>
+                            {% for reflection in reflections %}
+                            <option value="{{ reflection.id }}" title="{{ reflection.reflection }}">{{ reflection.reflection }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; width: 100%;">
+            <p style="font-weight: bold; margin-right: auto">Notes:</p>
+            <textarea id="note" class="noteTextArea" placeholder="Notes"></textarea>
+        </div>
+        <div class="add-new-interview-bottom">
+            <input class="btn btn-green" type="button" value="Save and set as active" onClick="saveInterview(true, '{{ request.session.active_topic_id }}')"/>
+            <input class="btn btn-blue" type="button" value="Save Interview" onClick="saveInterview(false, '{{ request.session.active_topic_id }}')"/>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<script>    
+  window.respectOrder = {{interview.0.respect_order}}  
+  function redirect(topic) {
+    window.location.href = "interview/?topic=" + topic;
+  }
+
+  function handleExpand(id) {
+    let element = document.getElementById(`content-${id}`);
+    let arrow = document.getElementById(`arrow-${id}`);
+    if (element.classList.contains('expand')) {
+        element.classList.remove('expand');
+    } else {
+        element.classList.add('expand');
+    }
+
+    if (arrow.classList.contains('arrow_expand')) {
+        arrow.classList.remove('arrow_expand');
+    } else {
+        arrow.classList.add('arrow_expand');
+    }
+  }
+
+
+    function saveInterview(setAsActive, topic) {
+        let note = document.getElementById('note').value;
+        
+        let data = new FormData();     
+        data.append("setAsActive", setAsActive ? 1 : 0); 
+        data.append("respectOrder", window.respectOrder ? 1 : 0);
+        data.append("note", note);
+        data.append("interviewId", '{{interview.0.id}}');
+        axios.post(`update_interview`, data, {
+        headers: {
+            "X-CSRFTOKEN": '{{ csrf_token }}'
+            }
+        })
+        .then(response => {
+            window.location.href = "interview_startpage";
+        })
+        .catch(error => console.error(error));
+    }
+</script>
+<div style="padding: 40px 20px 20px 20px">
+  <div
+    style="
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <div class="interview-details__header">
+        <div class="interview-details__header__id">
+            <p>#{{ interview.0.id }}</p>
+        </div>
+        <div class="interview-details__header__date">
+            {% if interview.0.created_at %}
+                <p>{{interview.0.created_at}}</p>
+            {% else %}
+                <p>Publishing date is not available.</p>
+            {% endif %}
+        </div>
+        <div class="interview-details__header__image">
+            {% if icon_image %}
+            <img class="management-summary-top__header__img" src="{% static 'uploads/'|add:icon_image %}" />
+            {% endif %}
+            <h3>{{ request.session.active_topic }}</h3>
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem; display: flex; gap: 0.25rem; align-items: center; justify-content: center">
+        <p style="font-weight: bold; font-size: small">Respect questions order</p>
+        <div class="checkbox-wrapper-10">
+            {% if interview.0.respect_order %}
+                <input onChange="window.respectOrder = !window.respectOrder" class="tgl tgl-flip" id="cb5" type="checkbox" checked />
+            {% else %}
+                <input onChange="window.respectOrder = !window.respectOrder" class="tgl tgl-flip" id="cb5" type="checkbox" />
+            {% endif %}
+
+            <label class="tgl-btn" data-tg-off="No" data-tg-on="Yes!" for="cb5"></label>
+        </div>
+    </div>
+
+    <div class="interview-details__content">
+        <!-- Questions -->
+        <div class="interview-details__content__questions">
+            {% if questions %}
+            <b>Questions:</b>
+            {% endif %}
+            {% for question in questions %}
+                <div id="{{question.id}}" class="interview-details__content__questions__question-card">
+                    <div onClick="handleExpand('{{question.id}}')" class="interview-details__content__questions__question-card__header">
+                        <div class="interview-details__content__questions__question-card__header__order">
+                            <p>
+                                <span>Order: </span>{{question.question_order}}
+                                <span>ID: </span>{{question.id}}
+                            </p>
+                        </div>
+                        <div class="interview-details__content__questions__question-card__header__question">
+                            <p>{{question.question}}</p>
+                        </div>
+
+                        <img id="arrow-{{question.id}}" class="interview-details__content__questions__question-card__header__arrow" src="{% static 'down.png' %}" />
+                    </div>
+                    <div id="content-{{question.id}}" class="interview-details__content__questions__question-card__content">
+                        <p>{{question.question}}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Reflections -->
+        <div class="interview-details__content__questions">
+            {% if reflections %}
+            <b>Reflections:</b>
+            {% endif %}
+            {% for reflection in reflections %}
+                <div id="r{{reflection.id}}" class="interview-details__content__questions__question-card">
+                    <div onClick="handleExpand('r{{reflection.id}}')" class="interview-details__content__questions__question-card__header">
+                        <div class="interview-details__content__questions__question-card__header__order">
+                             <p><span>ID: </span>{{reflection.id}}</p>
+                        </div>
+                        <div class="interview-details__content__questions__question-card__header__question">
+                            <p>{{reflection.reflection}}</p>
+                        </div>
+
+                        <img id="arrow-r{{reflection.id}}" class="interview-details__content__questions__question-card__header__arrow" src="{% static 'down.png' %}" />
+                    </div>
+                    <div id="content-r{{reflection.id}}" class="interview-details__content__questions__question-card__content">
+                        <p>{{reflection.reflection}}</p>
+                        <p><b>Trigger:</b> {{reflection.trigger_string}}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem; width: 100%;">
+        <p style="font-weight: bold; margin-right: auto">Notes:</p>
+        <textarea id="note" class="noteTextArea" placeholder="Notes">{{interview.0.note}}</textarea>
+    </div>
+
+    <div class="add-new-interview-bottom">
+        <input class="btn btn-green" type="button" value="Save and set as active" onClick="saveInterview(true, '{{interview.0.topic_id}}')"/>
+        <input class="btn btn-blue" type="button" value="Save Interview" onClick="saveInterview(false, '{{interview.0.topic_id}}')"/>
+    </div>
+</div>
+</div>
+{% endblock %}

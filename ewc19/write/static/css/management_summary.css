@@ -1,0 +1,138 @@
+.management-summary-top {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.management-summary-top__header {
+  max-height: 10rem;
+}
+
+.management-summary-top__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.management-summary-top__header__img {
+  max-height: 2rem;
+}
+
+.management-summary-top__body {
+  padding: 0.7rem;
+  background-color: rgba(28, 148, 196, 0.15);
+  border-radius: 0.25rem;
+  display: flex;
+  gap: 4rem;
+}
+
+.title-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 0.25rem;
+}
+
+.title-info p,
+h4 {
+  margin: 0;
+  padding: 0;
+}
+
+.title-info h4 {
+  /* width: 12rem; */
+}
+
+.management-summary-body__info-cards {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem 0 0 0;
+  align-items: flex-start;
+  /* flex-direction: column; */
+}
+
+.management-summary-body__info-cards__card {
+  border-radius: 0.25rem;
+  background-color: rgba(28, 148, 196, 0.15);
+  height: 30rem;
+  width: 33%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.gray-bg {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.csv-button {
+  margin-left: auto;
+  color: white;
+  background-color: #2bc3ff;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all ease-in-out 250ms;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.csv-button:hover {
+  border: 1px solid black;
+  transform: translateY(-0.25rem);
+}
+
+.hover-effect {
+  transition: all 250ms ease-in-out;
+}
+
+.hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.faq__entry__question {
+  cursor: pointer;
+  padding: 1rem 0;
+  border-bottom: 1px solid lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.faq__entry__question h4 {
+  width: 80%;
+}
+
+.faq__entry__answer {
+  margin: 1rem;
+  transition: all 250ms ease-out;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.expand {
+  max-height: 50rem;
+}
+
+.arrow {
+  color: #2bc3ff;
+  font-size: large;
+  font-weight: 900;
+  transition: transform 150ms ease-in-out;
+}
+.addFaq-modal__body {
+  padding: 1rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div style="padding: 40px 20px 20px 20px;">
+  <div style="text-align:center;width:100%;">
+    <h2>Emotions</h2>
+    <br/><br/>
+    <div id='chart'><!-- Plotly chart will be drawn inside this DIV --></div>
+  </div>
+</div>
+<script>
+  var Anxiety = {
+    y: {{ emotions_distribution.anxiety }},
+    type: 'box',
+    name:'Anxiety'
+  };
+
+  var Anger = {
+    y: {{ emotions_distribution.anger }},
+    type: 'box',
+    name:'Anger'
+  };
+
+  var Sadness = {
+    y: {{ emotions_distribution.sadness }},
+    type: 'box',
+    name:'Sadness'
+  };
+
+  var Fear = {
+    y: {{ emotions_distribution.fear }},
+    type: 'box',
+    name:'Fear'
+  };
+
+  var Joy = {
+    y: {{ emotions_distribution.joy }},
+    type: 'box',
+    name:'Joy'
+  };
+
+  var data = [Anxiety, Anger, Sadness, Fear, Joy];
+
+  Plotly.newPlot('chart', data);
+</script>
+{% endblock %}

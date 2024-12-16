@@ -1,0 +1,279 @@
+{% extends "base.html" %} {% load static %} 
+
+{% block head %}
+<script>
+    function editTopic(id) {
+      $(".editModal").hide();
+      $("#editModal" + id).show();
+    }
+
+    function viewDisclaimer(id) {
+      $(".introModal").hide();
+      $("#introModal" + id).show();
+    }
+
+    function showNotification(message, type) {
+        var notification = $('<div class="notification"></div>');
+        notification.addClass('alert-' + type);
+        notification.text(message);
+        $('#page-bgtop').append(notification);
+        setTimeout(function(){
+        notification.fadeOut();
+        }, 3000);
+    }
+
+    function redirectNewTopic() {
+        window.location.href = "new_topic";
+    }
+
+    function editTopicSave(id) {
+        var topicName = $('#topicName' + id).val();
+        var botName = $('#botName' + id).val();
+        var introDisclaimer = $('#introDisclaimer' + id).val();
+        // var iconFile = $("#iconFile")[0].files[0];
+        var csrftoken = getCookie('csrftoken');
+        var formData = new FormData();
+        formData.append('files[]', $('#iconFile' + id).get(0).files[0]);
+        formData.append('csrfmiddlewaretoken', csrftoken);
+        formData.append('botName', botName);
+        formData.append('topicName', topicName);
+        formData.append('introDisclaimer', introDisclaimer);
+        formData.append('topicId', id);
+        formData.append('submitType', 'edit');
+
+        $('#closeModal' + id).click();
+        $.ajax({
+        url: 'add_topic',
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+        success: function(response) {
+            if(response.status == 'OK') {
+            showNotification(response.message, 'success');
+            window.location.href = "topics";
+            } else if(response.status == 'ERROR') {
+            showNotification(response.message, 'danger');
+            } else {
+            showNotification('Error adding topic. Please try again.', 'danger');
+            }
+        },
+        error: function(error) {
+            showNotification('Error adding topic. Please try again.', 'danger');
+        }
+        });
+    }
+
+    function addTopic() {
+        var topicName = $('#topicName').val();
+        var botName = $('#botName').val();
+        var introDisclaimer = $('#introDisclaimer').val();
+        // var iconFile = $("#iconFile")[0].files[0];
+        var csrftoken = getCookie('csrftoken');
+        var formData = new FormData();
+        formData.append('files[]', $('#iconFile').get(0).files[0]);
+        formData.append('csrfmiddlewaretoken', csrftoken);
+        formData.append('botName', botName);
+        formData.append('topicName', topicName);
+        formData.append('introDisclaimer', introDisclaimer);
+        formData.append('submitType', 'add');
+
+        $('#closeModal').click();
+        $.ajax({
+        url: 'add_topic',
+        type: 'POST',
+        // contentType: 'multipart/form-data',
+        contentType: false,
+        processData: false,
+        data: formData,
+        // {
+        //     'topicName': topicName,
+        //     'botName': botName,
+        //     'files[]': formData,
+        //     'csrfmiddlewaretoken': csrftoken
+        // },
+        success: function(response) {
+            if(response.status == 'OK') {
+            showNotification(response.message, 'success');
+            } else if(response.status == 'ERROR') {
+            showNotification(response.message, 'danger');
+            } else {
+            showNotification('Error adding topic. Please try again.', 'danger');
+            }
+        },
+        error: function(error) {
+            showNotification('Error adding topic. Please try again.', 'danger');
+        }
+        });
+    }
+</script>
+<style>
+.notification {
+    position: fixed;
+    bottom: 20px;
+    text-align: center;
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    /* display: none; */
+}
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 40px 20px 20px 20px">
+  <div style="text-align: center;width: 100%;display: flex;flex-direction: column;">
+    <!-- <div style="margin: auto">
+        <h1 style="width:100%;">Topics</h1>
+    </div> -->
+    <div class="d-flex justify-content-between mb-4 page-header">
+        <h1 class="mb-12">Topics</h1>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTopicModal">
+            Add Topic
+        </button>
+    </div>
+
+    <div class="container mt-5">
+        <table class="table-striped" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Icon</th>
+                    <th>Name</th>
+                    <th>Bot Name</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            {% for topic in topics %}
+            <tr>
+                <td>{{ topic.id }}</td>
+                <td style="display: flex;justify-content: center;">
+                    {% if topic.file %}
+                    <div class="small-icon" style="background-image: url('../../static/uploads/{{ topic.file }}');"></div>
+                    {% endif %}
+                </td>
+                <td>{{ topic.name }}</td>
+                <td>{{ topic.cpname }}</td>
+                <td>
+                    <input type="button" class="btn btn-blue" value="Edit" onclick="editTopic('{{ topic.id }}')" data-toggle="modal" data-target="#editTopicModal"/>
+                    <input type="button" class="btn btn-blue" value="Intro" onclick="viewDisclaimer('{{ topic.id }}')" data-toggle="modal" data-target="#disclaimerModal" />
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add Topic Modal -->
+<div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="addTopicModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTopicModalLabel">Add Topic</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="iconFile" class="col-form-label">Icon File:</label>
+          <input type="file" class="form-control" name="iconFile" id="iconFile" accept="image/jpeg"/>
+        </div>
+        <div class="form-group">
+          <label for="topicName" class="col-form-label">Topic Name:</label>
+          <input type="text" class="form-control" id="topicName"/>
+        </div>
+        <div class="form-group">
+          <label for="botName" class="col-form-label">Bot Name:</label>
+          <input type="text" class="form-control" id="botName" name="botName" />
+        </div>
+        <div class="form-group">
+          <label for="introDisclaimer" class="col-form-label">Introduction Disclaimer:</label>
+          <textarea cols="40" rows="10" class="form-control" id="introDisclaimer" name="introDisclaimer"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeModal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="addTopic()">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Topic Modal -->
+<div class="modal fade" id="editTopicModal" tabindex="-1" role="dialog" aria-labelledby="editTopicModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTopicModalLabel">Edit Topic</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% for topic in topics %}
+        <div class="editModal" id="editModal{{topic.id}}">
+          <div class="form-group">
+            <label for="iconFile{{topic.id}}" class="col-form-label">Icon File:</label>
+            <input type="file" class="form-control" name="iconFile{{topic.id}}" id="iconFile{{topic.id}}" accept="image/jpeg"/>
+            {% if topic.file %}
+              <div class="small-icon" style="background-image: url('../../static/uploads/{{ topic.file }}');"></div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="topicName{{topic.id}}" class="col-form-label">Topic Name:</label>
+            <input type="text" class="form-control" id="topicName{{topic.id}}" value="{{ topic.name }}" />
+          </div>
+          <div class="form-group">
+            <label for="botName{{topic.id}}" class="col-form-label">Bot Name:</label>
+            <input type="text" class="form-control" id="botName{{topic.id}}" name="botName{{topic.id}}" value="{{ topic.cpname }}" />
+          </div>
+          <div class="form-group">
+            <label for="introDisclaimer{{topic.id}}" class="col-form-label">Introduction Disclaimer:</label>
+            <textarea cols="40" rows="10" class="form-control" id="introDisclaimer{{topic.id}}" name="introDisclaimer{{topic.id}}">{{topic.intro_disclaimer}}</textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeModal{{topic.id}}">Close</button>
+            <button type="button" class="btn btn-primary" onclick="editTopicSave('{{topic.id}}')">Save changes</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Disclaimer Modal -->
+<div class="modal fade" id="disclaimerModal" tabindex="-1" role="dialog" aria-labelledby="disclaimerModal" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="disclaimerModal">Intro Disclaimer</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% for topic in topics %}
+        <div class="introModal" id="introModal{{topic.id}}">
+          {{topic.intro_disclaimer|linebreaksbr}}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
