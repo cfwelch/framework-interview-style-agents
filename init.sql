@@ -125,7 +125,7 @@ CREATE TABLE `auth_user` (
 
 LOCK TABLES `auth_user` WRITE;
 /*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
-INSERT INTO `auth_user` VALUES (24,'pbkdf2_sha256$870000$rppihg7AOKMPptQ95fsmnM$qVSNqyDvo1lSkEZTnfbN7JXPJSpLzryfJxScrpzSx9Q=','2024-12-16 02:16:31.637654',1,'adminuser','','','',1,1,'2022-11-08 11:23:04.566835');
+INSERT INTO `auth_user` VALUES (24,'pbkdf2_sha256$870000$9fidUhmiDJaWyMKzjlyATD$rWvAJYHQ45i3gfb5xYrd1IwqAWVfa79apRoCBXHJcL8=','2025-08-19 23:52:08.379215',1,'adminuser','','','',1,1,'2022-11-08 11:23:04.566835');
 /*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
 UNLOCK TABLES;
 

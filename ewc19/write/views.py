@@ -150,7 +150,9 @@ def survey(request):
         for key in request.POST:
             if key.startswith('q_'):
                 answers[key[2:]] = int(request.POST[key]) if services.isanint(request.POST[key]) else -1
-        services.submit_survey(answers, bf, request.session.session_key, topic)
+
+        if len(answers) > 0:
+            services.submit_survey(answers, bf, request.session.session_key, topic)
 
         # This means it is the post-interview survey, so we go to the summary instead of the interview/writing page
         if bf == 0:
